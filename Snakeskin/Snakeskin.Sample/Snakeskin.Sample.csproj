@@ -5,6 +5,7 @@
         <IsRoslynComponent>true</IsRoslynComponent>
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
         <RootNamespace>InfiniteLoathing.Snakeskin.Sample</RootNamespace>
+        <CompileExports Condition=" '$(Configuration)' == 'Debug'">true</CompileExports>
     </PropertyGroup>
 
     <ItemGroup>
@@ -15,5 +16,7 @@
         </ProjectReference>
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" />
     </ItemGroup>
+    
+    <Import Project="..\Snakeskin\build\Snakeskin.props" />
 
 </Project>

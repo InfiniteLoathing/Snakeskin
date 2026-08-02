@@ -7,10 +7,6 @@ namespace InfiniteLoathing.Snakeskin.Sample
     {
         public void Initialize(IncrementalGeneratorInitializationContext context)
         {
-            context.RegisterPostInitializationOutput(AddEmbeddedAttribute);
         }
-
-        private static void AddEmbeddedAttribute(IncrementalGeneratorPostInitializationContext context) =>
-            context.AddEmbeddedAttributeDefinition();
     }
 }
