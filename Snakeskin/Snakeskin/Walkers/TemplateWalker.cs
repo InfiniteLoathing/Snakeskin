@@ -13,23 +13,20 @@ namespace InfiniteLoathing.Snakeskin.Walkers
     internal class TemplateWalker : CSharpSyntaxWalker
     {
         protected readonly SourceText SourceText;
-        protected readonly Stack<ParentDirective> Directives = new Stack<ParentDirective>();
-        protected int TextStartIndex;
+        protected readonly Stack<ParentDirective> NestedDirectives = new Stack<ParentDirective>();
+        protected readonly Stack<bool> NestedRegionIsDirective = new Stack<bool>();
+        protected readonly Dictionary<string, ValueNodeKind> ValueKinds = new Dictionary<string, ValueNodeKind>();
+        protected readonly Dictionary<string, ValueNode> Values = new Dictionary<string, ValueNode>();
+        protected readonly Stack<ImmutableArray<string>> NestedValues = new Stack<ImmutableArray<string>>();
+        protected int TemplateTextCursor;
 
-        protected TemplateWalker(SourceText sourceText, int textStartIndex, string name)
+        protected TemplateWalker(SourceText sourceText, int templateTextCursor, string name)
             : base(SyntaxWalkerDepth.StructuredTrivia)
         {
             SourceText = sourceText;
-            TextStartIndex = textStartIndex;
-            Directives.Push(new TemplateRoot(name));
+            TemplateTextCursor = templateTextCursor;
+            NestedDirectives.Push(new TemplateRoot(name));
         }
-        
-        private const string DirectivePrefix = "@";
-        
-        protected static string GetRegionText(RegionDirectiveTriviaSyntax syntax) => 
-            syntax.EndOfDirectiveToken.LeadingTrivia.ToFullString().Trim();
-
-        protected static bool IsDirective(string directiveString) => directiveString.StartsWith(DirectivePrefix);
 
         protected TextSpan GetLineSpan(DirectiveTriviaSyntax node) =>
             SourceText.Lines.Single(a => a.Span.Contains(node.Span)).SpanIncludingLineBreak;

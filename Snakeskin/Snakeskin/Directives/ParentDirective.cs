@@ -11,7 +11,7 @@ namespace InfiniteLoathing.Snakeskin.Directives
 
         public virtual bool HasValues => false;
 
-        public virtual Dictionary<string, ValueNode> Values => throw new InvalidOperationException();
+        public virtual bool SupportsValueKind(ValueNodeKind kind) => false;
 
         public virtual StringBuilder Render(StringBuilder builder)
         {
