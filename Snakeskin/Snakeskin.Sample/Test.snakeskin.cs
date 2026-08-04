@@ -1,11 +1,21 @@
 ﻿// @template Test
+#region @replace gest,                mest              , nest             
 namespace InfiniteLoathing.Snakeskin.Sample
 {
-    #region @replace test,best
-    #region @remove
+    #region @replace Test
     internal class Test2
     {
+        #region @replace vest,                jest         
+        public Test2()
+        {
+            
+        }
+        #endregion
+        
+        #region @remove
+            //removed comment
+        #endregion
     }
     #endregion
-    #endregion
 }
+#endregion

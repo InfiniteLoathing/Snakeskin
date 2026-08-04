@@ -45,7 +45,7 @@ namespace InfiniteLoathing.Snakeskin
             try
             {
                 visitor.Visit(root);
-                var res = visitor.GetResult();
+                var res = visitor.Complete();
                 var text = res.Render(new StringBuilder()).ToString();
             }
             catch (InvalidTemplateException)

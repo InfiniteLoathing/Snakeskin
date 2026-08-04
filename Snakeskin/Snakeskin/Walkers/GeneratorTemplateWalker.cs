@@ -20,8 +20,8 @@ namespace InfiniteLoathing.Snakeskin.Walkers
 
         public override void VisitRegionDirectiveTrivia(RegionDirectiveTriviaSyntax node)
         {
-            var regionText = TemplateReader.GetRegionText(node);
-            if (!TemplateReader.IsDirective(regionText))
+            var regionText = RegionTextReader.GetRegionText(node);
+            if (!regionText.IsDirective(out var regionIndex))
             {
                 NestedRegionIsDirective.Push(false);
                 return;
@@ -36,34 +36,42 @@ namespace InfiniteLoathing.Snakeskin.Walkers
                 parent.Children.AddRange(this.ProcessTemplateText(span));
             }
 
-            var regionMatch = TemplateReader.MatchRegionDirective(regionText);
+
+            var directiveText = regionText.GetDirective(regionIndex);
+            var directiveArguments = regionText.GetArguments(directiveText.Index).ToList();
+            var regionMatch = RegionTextReader.MatchRegionDirective(regionText);
 
             if (!regionMatch.Directive.Success)
             {
                 throw new InvalidDirectiveException(regionText);
             }
 
-            if (!TemplateReader.TryParseDirective(regionMatch.Directive, out var directive))
+            if (!RegionTextReader.TryParseDirective(regionMatch.Directive, out var directive))
             {
                 throw new InvalidDirectiveException(regionMatch.Directive.Value);
             }
 
             if (directive.HasValues)
             {
+                if (regionMatch.Values.Captures.Count == 0)
+                {
+                    throw new InvalidDirectiveException($"{directive.Kind} requires value arguments");
+                }
+                
                 var validValues = new List<ValueNode>();
             
                 foreach (Capture capture in regionMatch.Values.Captures)
                 {
-                    var value = TemplateReader.CreateValue(capture.Value);
+                    var value = RegionTextReader.CreateValue(capture.Value);
                     if (!SyntaxFacts.IsValidIdentifier(value.Identifier))
                     {
                         throw new InvalidValueNodeException($"{value} is not a legal identifier");
                     }
 
-                    if (!directive.SupportsValueKind(value.ValueKind))
+                    if (!directive.SupportsValueKind(value.ValueKind, value.IsArray))
                     {
                         throw new InvalidValueNodeException(
-                            $"{value.ValueKind} is not of a legal kind for {directive.Kind} directives");
+                            $"{value.ValueKind}{(value.IsArray ? "[]" : string.Empty)} is not of a legal kind for {directive.Kind} directives");
                     }
 
                     if (validValues.Any(x => x.Identifier == value.Identifier))
@@ -111,6 +119,7 @@ namespace InfiniteLoathing.Snakeskin.Walkers
                 }
             }
 
+            this.RecalculateValuePattern();
             parent.Children.Add(directive);
             NestedDirectives.Push(directive);
             TemplateTextCursor = this.GetLineSpan(node).End;
@@ -139,10 +148,11 @@ namespace InfiniteLoathing.Snakeskin.Walkers
                 {
                     Values.Remove(endingValue);
                 }
+                this.RecalculateValuePattern();
             }
         }
 
-        public ITemplateNode GetResult()
+        public ITemplateNode Complete()
         {
             var topLevelDirective = NestedDirectives.Pop();
 
@@ -161,9 +171,26 @@ namespace InfiniteLoathing.Snakeskin.Walkers
             return topLevelDirective;
         }
 
-        private IEnumerable<ITemplateNode> ProcessTemplateText(TextSpan textSpan)
+        private IEnumerable<ITemplateNode> ProcessTemplateText(TextSpan span)
         {
-            yield return new TextNode(SourceText.ToString(textSpan));
+            if (ValuePattern == string.Empty)
+            {
+                yield break;
+            }
+
+            var t = SourceText.ToString(span);
+            
+            foreach (var segment in Regex.Split(SourceText.ToString(span), ValuePattern))
+            {
+                if (Values.TryGetValue(segment, out var value))
+                {
+                    yield return value;
+                }
+                else
+                {
+                    yield return new TextNode(segment);
+                }
+            }
         }
     }
 }

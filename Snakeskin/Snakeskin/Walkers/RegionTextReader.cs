@@ -1,25 +1,25 @@
 ﻿using System.Text.RegularExpressions;
 using InfiniteLoathing.Snakeskin.Directives;
-using InfiniteLoathing.Snakeskin.Exceptions;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace InfiniteLoathing.Snakeskin.Walkers
 {
-    internal static class TemplateReader
+    internal class RegionTextReader
     {
         private const string DirectivePrefix = "@";
         
-        private const string DirectiveGroupName = "Replace";
+        private const string DirectiveGroupName = "Directive";
         private const string ArgumentsGroupName = "Arguments";
         private static readonly Regex DirectiveExpression =
-            new Regex($@"^\s*@(?<{DirectiveGroupName}>\w+)(?:\s+(?<{ArgumentsGroupName}>.*?))*\s*$");
-        
-        public static string GetRegionText(RegionDirectiveTriviaSyntax syntax) =>
-            syntax.EndOfDirectiveToken.LeadingTrivia.ToFullString().Trim();
+            new Regex($@"^\s*@(?<{DirectiveGroupName}>\w+)"
+                      + @"\s*"
+                      + $@"(?<{ArgumentsGroupName}>[^,\s]+)?"
+                      + $@"(?:\s*,\s*(?<{ArgumentsGroupName}>[^,\s]+))*$");
 
-        public static LocatableString GetLocatableRegionText(RegionDirectiveTriviaSyntax syntax) =>
-            new LocatableString(syntax.SyntaxTree, syntax.GetLocation(), GetRegionText(syntax));
+        public static RegionText GetRegionText(RegionDirectiveTriviaSyntax syntax) => new RegionText(
+            syntaxTree: syntax.SyntaxTree,
+            location: syntax.EndOfDirectiveToken.LeadingTrivia.First().GetLocation(),
+            value: syntax.EndOfDirectiveToken.LeadingTrivia.ToFullString().Trim());
 
         public static bool IsDirective(string directiveString) => directiveString.StartsWith(DirectivePrefix);
 

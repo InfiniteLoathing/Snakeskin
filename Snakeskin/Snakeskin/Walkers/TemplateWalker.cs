@@ -18,6 +18,7 @@ namespace InfiniteLoathing.Snakeskin.Walkers
         protected readonly Dictionary<string, ValueNodeKind> ValueKinds = new Dictionary<string, ValueNodeKind>();
         protected readonly Dictionary<string, ValueNode> Values = new Dictionary<string, ValueNode>();
         protected readonly Stack<ImmutableArray<string>> NestedValues = new Stack<ImmutableArray<string>>();
+        protected string ValuePattern = string.Empty;
         protected int TemplateTextCursor;
 
         protected TemplateWalker(SourceText sourceText, int templateTextCursor, string name)
@@ -30,5 +31,9 @@ namespace InfiniteLoathing.Snakeskin.Walkers
 
         protected TextSpan GetLineSpan(DirectiveTriviaSyntax node) =>
             SourceText.Lines.Single(a => a.Span.Contains(node.Span)).SpanIncludingLineBreak;
+
+        protected void RecalculateValuePattern() => ValuePattern = Values.Count > 0
+            ? $"({string.Join("|", Values.Keys)})"
+            : string.Empty;
     }
 }

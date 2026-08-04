@@ -8,7 +8,8 @@ namespace InfiniteLoathing.Snakeskin.Directives
     {
         public override TemplateNodeKind Kind => TemplateNodeKind.Replace;
 
-        public override bool SupportsValueKind(ValueNodeKind kind) => kind == ValueNodeKind.String;
+        public override bool SupportsValueKind(ValueNodeKind kind, bool isArray) =>
+            !isArray && kind == ValueNodeKind.String;
 
         public override bool HasValues => true;
     }

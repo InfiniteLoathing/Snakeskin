@@ -20,6 +20,6 @@ namespace InfiniteLoathing.Snakeskin.Directives
         
         public string Identifier { get; }
         
-        public StringBuilder Render(StringBuilder builder) => builder.Append(this.Identifier);
+        public StringBuilder Render(StringBuilder builder) => builder.Append($"{{{this.Identifier}}}");
     }
 }
