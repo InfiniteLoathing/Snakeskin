@@ -1,4 +1,4 @@
-﻿namespace InfiniteLoathing.Snakeskin.Walkers
+﻿namespace InfiniteLoathing.Snakeskin.Syntax
 {
     internal class ValueSyntax
     {

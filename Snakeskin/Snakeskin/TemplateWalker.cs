@@ -1,20 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using InfiniteLoathing.Snakeskin.Directives;
+using InfiniteLoathing.Snakeskin.Diagnostics;
 using InfiniteLoathing.Snakeskin.Exceptions;
+using InfiniteLoathing.Snakeskin.Syntax;
+using InfiniteLoathing.Snakeskin.Templating;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 
-namespace InfiniteLoathing.Snakeskin.Walkers
+namespace InfiniteLoathing.Snakeskin
 {
     internal abstract class TemplateWalker : CSharpSyntaxWalker
     {
         // #todo: move these to a template context class
         protected readonly SourceText SourceText;
-        private readonly TemplateScope _templateScope;
+        private readonly SemanticScope _semanticScope;
         private readonly Stack<bool> _regionIsDirective = new Stack<bool>();
         
         private int _unprocessedTextStart;
@@ -23,7 +25,7 @@ namespace InfiniteLoathing.Snakeskin.Walkers
             : base(SyntaxWalkerDepth.StructuredTrivia)
         {
             SourceText = sourceText;
-            _templateScope = new TemplateScope(this.HandleDiagnostic);
+            _semanticScope = new SemanticScope(this.HandleDiagnostic);
             _unprocessedTextStart = unprocessedTextStart;
         }
 
@@ -51,7 +53,7 @@ namespace InfiniteLoathing.Snakeskin.Walkers
             this.ProcessTextSection(directiveLineSpan.Start);
             _unprocessedTextStart = directiveLineSpan.End;
             _regionIsDirective.Push(true);
-            this.EnterDirectiveRegion(_templateScope.ValidateAndAdd(directiveSyntax));
+            this.EnterDirectiveRegion(_semanticScope.ValidateAndAdd(directiveSyntax));
         }
 
         public override void VisitEndRegionDirectiveTrivia(EndRegionDirectiveTriviaSyntax node)
@@ -69,7 +71,7 @@ namespace InfiniteLoathing.Snakeskin.Walkers
             this.ExitDirectiveRegion();
         }
 
-        protected virtual void EnterDirectiveRegion(TemplateContainer templateContainer)
+        protected virtual void EnterDirectiveRegion(ParentNode parentNode)
         {
             
         }
@@ -88,7 +90,7 @@ namespace InfiniteLoathing.Snakeskin.Walkers
                 return;
             }
 
-            foreach (var templateNode in _templateScope.RenderTextSection(SourceText.ToString(span)))
+            foreach (var templateNode in _semanticScope.RenderTextSection(SourceText.ToString(span)))
             {
                 this.ProcessTemplateNode(templateNode);
             }
@@ -112,7 +114,7 @@ namespace InfiniteLoathing.Snakeskin.Walkers
 
             if (span.Length != 0)
             {
-                foreach (var templateNode in _templateScope.RenderTextSection(SourceText.ToString(span)))
+                foreach (var templateNode in _semanticScope.RenderTextSection(SourceText.ToString(span)))
                 {
                     this.ProcessTemplateNode(templateNode);
                 }

@@ -1,8 +1,8 @@
 ﻿using System.Text;
 
-namespace InfiniteLoathing.Snakeskin.Directives
+namespace InfiniteLoathing.Snakeskin.Templating
 {
-    internal class RemoveDirective : TemplateContainer
+    internal class RemoveDirective : ParentNode
     {
         public override StringBuilder Render(StringBuilder builder) => builder;
     }

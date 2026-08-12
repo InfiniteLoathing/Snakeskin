@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
 
-namespace InfiniteLoathing.Snakeskin.Walkers
+namespace InfiniteLoathing.Snakeskin.Syntax
 {
     internal class ReplaceDirectiveSyntax : DirectiveSyntax
     {

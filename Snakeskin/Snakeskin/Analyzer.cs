@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using InfiniteLoathing.Snakeskin.Diagnostics;
 using InfiniteLoathing.Snakeskin.Extensions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;

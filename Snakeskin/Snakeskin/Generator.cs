@@ -1,6 +1,6 @@
 ﻿using InfiniteLoathing.Snakeskin.Exceptions;
 using InfiniteLoathing.Snakeskin.Extensions;
-using InfiniteLoathing.Snakeskin.Walkers;
+using InfiniteLoathing.Snakeskin.Syntax;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -33,7 +33,7 @@ namespace InfiniteLoathing.Snakeskin
                 return;
             }
 
-            if (!root.RegionsAreValid())
+            if (!RootValidator.RegionsAreValid(root))
             {
                 return;
             }

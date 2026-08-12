@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 
-namespace InfiniteLoathing.Snakeskin.Directives
+namespace InfiniteLoathing.Snakeskin.Templating
 {
     // current: Figure out cleaner inheritance
-    internal abstract class TemplateContainer : ITemplateNode
+    internal abstract class ParentNode : ITemplateNode
     {
         public virtual StringBuilder Render(StringBuilder builder)
         {

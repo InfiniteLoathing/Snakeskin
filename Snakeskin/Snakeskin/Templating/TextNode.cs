@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace InfiniteLoathing.Snakeskin.Directives
+namespace InfiniteLoathing.Snakeskin.Templating
 {
     internal class TextNode : ITemplateNode
     {

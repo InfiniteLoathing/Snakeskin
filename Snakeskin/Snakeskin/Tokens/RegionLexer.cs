@@ -2,7 +2,7 @@
 using InfiniteLoathing.Snakeskin.Extensions;
 using Microsoft.CodeAnalysis.Text;
 
-namespace InfiniteLoathing.Snakeskin.Walkers
+namespace InfiniteLoathing.Snakeskin.Tokens
 {
     internal ref struct RegionLexer
     {

@@ -1,4 +1,4 @@
-﻿namespace InfiniteLoathing.Snakeskin.Walkers
+﻿namespace InfiniteLoathing.Snakeskin
 {
     internal static class Keywords
     {

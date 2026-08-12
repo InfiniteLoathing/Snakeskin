@@ -1,7 +1,7 @@
 ﻿using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 
-namespace InfiniteLoathing.Snakeskin
+namespace InfiniteLoathing.Snakeskin.Diagnostics
 {
     internal static class DiagnosticDescriptors
     {

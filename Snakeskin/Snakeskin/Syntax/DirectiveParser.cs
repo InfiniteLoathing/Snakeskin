@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Immutable;
+using InfiniteLoathing.Snakeskin.Diagnostics;
 using InfiniteLoathing.Snakeskin.Extensions;
+using InfiniteLoathing.Snakeskin.Tokens;
 using Microsoft.CodeAnalysis.Text;
 
-namespace InfiniteLoathing.Snakeskin.Walkers
+namespace InfiniteLoathing.Snakeskin.Syntax
 {
     internal ref struct DirectiveParser
     {
@@ -69,7 +71,7 @@ namespace InfiniteLoathing.Snakeskin.Walkers
             return false;
         }
 
-        private bool TryParseReplace(out DirectiveSyntax replaceDirective)
+        public bool TryParseReplace(out DirectiveSyntax replaceDirective)
         {
             if (_lexer.IsComplete)
             {

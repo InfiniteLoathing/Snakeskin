@@ -1,4 +1,6 @@
-﻿namespace InfiniteLoathing.Snakeskin.Walkers
+﻿using InfiniteLoathing.Snakeskin.Tokens;
+
+namespace InfiniteLoathing.Snakeskin.Diagnostics
 {
     internal class UnexpectedTokenDiagnostic : ITemplateDiagnostic
     {

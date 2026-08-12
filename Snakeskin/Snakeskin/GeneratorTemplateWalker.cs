@@ -1,13 +1,14 @@
 ﻿using System.Collections.Generic;
-using InfiniteLoathing.Snakeskin.Directives;
+using InfiniteLoathing.Snakeskin.Diagnostics;
 using InfiniteLoathing.Snakeskin.Exceptions;
+using InfiniteLoathing.Snakeskin.Templating;
 using Microsoft.CodeAnalysis.Text;
 
-namespace InfiniteLoathing.Snakeskin.Walkers
+namespace InfiniteLoathing.Snakeskin
 {
     internal class GeneratorTemplateWalker : TemplateWalker
     {
-        private readonly Stack<TemplateContainer> _hierarchy = new Stack<TemplateContainer>();
+        private readonly Stack<ParentNode> _hierarchy = new Stack<ParentNode>();
         
         public GeneratorTemplateWalker(SourceText sourceText, int templateCursor)
             : base(sourceText, templateCursor)
@@ -15,7 +16,7 @@ namespace InfiniteLoathing.Snakeskin.Walkers
             _hierarchy.Push(new TemplateRoot());
         }
 
-        protected override void EnterDirectiveRegion(TemplateContainer templateContainer) =>_hierarchy.Push(templateContainer);
+        protected override void EnterDirectiveRegion(ParentNode parentNode) =>_hierarchy.Push(parentNode);
 
         protected override void ExitDirectiveRegion() => _hierarchy.Pop();
 

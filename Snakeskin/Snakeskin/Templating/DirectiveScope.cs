@@ -1,24 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
-using InfiniteLoathing.Snakeskin.Directives;
+using InfiniteLoathing.Snakeskin.Diagnostics;
 using InfiniteLoathing.Snakeskin.Exceptions;
+using InfiniteLoathing.Snakeskin.Syntax;
 using Microsoft.CodeAnalysis.Text;
 
-namespace InfiniteLoathing.Snakeskin.Walkers
+namespace InfiniteLoathing.Snakeskin.Templating
 {
-    internal class TemplateScope
+    internal class SemanticScope
     {
         public IReadOnlyDictionary<string, string> ReplacementValueMap => _replacementValueMap;
         private Dictionary<string, string> _replacementValueMap;
         private Action<ITemplateDiagnostic, TextSpan> _handleDiagnostic;
         
-        public TemplateScope(Action<ITemplateDiagnostic, TextSpan> handleDiagnostic)
+        public SemanticScope(Action<ITemplateDiagnostic, TextSpan> handleDiagnostic)
         {
             _replacementValueMap = new Dictionary<string, string>();
             _handleDiagnostic = handleDiagnostic;
         }
 
-        public TemplateContainer ValidateAndAdd(DirectiveSyntax directiveSyntax)
+        public ParentNode ValidateAndAdd(DirectiveSyntax directiveSyntax)
         {
             switch (directiveSyntax)
             {
@@ -34,7 +35,7 @@ namespace InfiniteLoathing.Snakeskin.Walkers
             yield break;
         }
 
-        private TemplateContainer AddToScope(ReplaceDirectiveSyntax replaceDirectiveSyntax)
+        private ParentNode AddToScope(ReplaceDirectiveSyntax replaceDirectiveSyntax)
         {
             throw new NotImplementedException();
         }

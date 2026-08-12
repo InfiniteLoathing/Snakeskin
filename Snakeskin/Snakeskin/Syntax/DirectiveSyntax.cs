@@ -1,6 +1,4 @@
-﻿using System.Collections.Immutable;
-
-namespace InfiniteLoathing.Snakeskin.Walkers
+﻿namespace InfiniteLoathing.Snakeskin.Syntax
 {
     internal abstract class DirectiveSyntax
     {

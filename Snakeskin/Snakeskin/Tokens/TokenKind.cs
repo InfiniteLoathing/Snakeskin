@@ -1,4 +1,4 @@
-﻿namespace InfiniteLoathing.Snakeskin.Walkers
+﻿namespace InfiniteLoathing.Snakeskin.Tokens
 {
     internal enum TokenKind
     {

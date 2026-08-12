@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.CodeAnalysis.Text;
 
-namespace InfiniteLoathing.Snakeskin.Walkers
+namespace InfiniteLoathing.Snakeskin.Tokens
 {
     internal readonly ref struct Token
     {
