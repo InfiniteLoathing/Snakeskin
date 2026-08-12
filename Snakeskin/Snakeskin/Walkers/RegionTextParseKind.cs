@@ -1,6 +1,6 @@
 ﻿namespace InfiniteLoathing.Snakeskin.Walkers
 {
-    internal enum RegionTextElementKind
+    internal enum RegionTextParseKind
     {
         Directive,
         ValueIdentifier,

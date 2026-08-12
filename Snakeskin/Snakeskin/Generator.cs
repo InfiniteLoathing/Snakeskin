@@ -1,5 +1,4 @@
-﻿using System.Text;
-using InfiniteLoathing.Snakeskin.Exceptions;
+﻿using InfiniteLoathing.Snakeskin.Exceptions;
 using InfiniteLoathing.Snakeskin.Extensions;
 using InfiniteLoathing.Snakeskin.Walkers;
 using Microsoft.CodeAnalysis;
@@ -22,8 +21,7 @@ namespace InfiniteLoathing.Snakeskin
         {
             var sourceText = template.GetText(context.CancellationToken);
 
-
-            if (sourceText is null || !sourceText.TryGetTemplateName(out var name))
+            if (sourceText is null)
             {
                 return;
             }
@@ -40,17 +38,16 @@ namespace InfiniteLoathing.Snakeskin
                 return;
             }
             
-            var visitor = new GeneratorTemplateWalker(sourceText, sourceText.Lines[0].EndIncludingLineBreak, name);
+            var visitor = new GeneratorTemplateWalker(sourceText, sourceText.Lines[0].EndIncludingLineBreak);
 
             try
             {
                 visitor.Visit(root);
-                var res = visitor.Complete();
-                var text = res.Render(new StringBuilder()).ToString();
+                // var res = visitor.Complete();
+                // var text = res.Render(new StringBuilder()).ToString();
             }
             catch (InvalidTemplateException)
             {
-                return;
             }
         }
     }

@@ -30,8 +30,8 @@ namespace InfiniteLoathing.Snakeskin
             {
                 return;
             }
-
-            sourceText.TryGetTemplateName(out var name);
+            
+            // todo: Add analyzer template walker
         }
     }
 }

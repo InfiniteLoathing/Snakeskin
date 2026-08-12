@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using InfiniteLoathing.Snakeskin.Directives;
+using InfiniteLoathing.Snakeskin.Exceptions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -10,30 +10,116 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace InfiniteLoathing.Snakeskin.Walkers
 {
-    internal class TemplateWalker : CSharpSyntaxWalker
+    internal abstract class TemplateWalker : CSharpSyntaxWalker
     {
+        // #todo: move these to a template context class
         protected readonly SourceText SourceText;
-        protected readonly Stack<ParentDirective> NestedDirectives = new Stack<ParentDirective>();
-        protected readonly Stack<bool> NestedRegionIsDirective = new Stack<bool>();
-        protected readonly Dictionary<string, ValueNodeKind> ValueKinds = new Dictionary<string, ValueNodeKind>();
-        protected readonly Dictionary<string, ValueNode> Values = new Dictionary<string, ValueNode>();
-        protected readonly Stack<ImmutableArray<string>> NestedValues = new Stack<ImmutableArray<string>>();
-        protected string ValuePattern = string.Empty;
-        protected int TemplateTextCursor;
+        private readonly TemplateScope _templateScope;
+        private readonly Stack<bool> _regionIsDirective = new Stack<bool>();
+        
+        private int _unprocessedTextStart;
 
-        protected TemplateWalker(SourceText sourceText, int templateTextCursor, string name)
+        protected TemplateWalker(SourceText sourceText, int unprocessedTextStart)
             : base(SyntaxWalkerDepth.StructuredTrivia)
         {
             SourceText = sourceText;
-            TemplateTextCursor = templateTextCursor;
-            NestedDirectives.Push(new TemplateRoot(name));
+            _templateScope = new TemplateScope(this.HandleDiagnostic);
+            _unprocessedTextStart = unprocessedTextStart;
         }
 
-        protected TextSpan GetLineSpan(DirectiveTriviaSyntax node) =>
-            SourceText.Lines.Single(a => a.Span.Contains(node.Span)).SpanIncludingLineBreak;
+        public override void VisitRegionDirectiveTrivia(RegionDirectiveTriviaSyntax node)
+        {
+            var regionTextTrivia = node.EndOfDirectiveToken.LeadingTrivia;
+            
+            if (regionTextTrivia.Count == 0)
+            {
+                _regionIsDirective.Push(false);
+                return;
+            }
+            
+            var parser = new DirectiveParser(
+                text: regionTextTrivia.ToFullString().AsSpan(),
+                handleDiagnostic: this.HandleDiagnostic);
 
-        protected void RecalculateValuePattern() => ValuePattern = Values.Count > 0
-            ? $"({string.Join("|", Values.Keys)})"
-            : string.Empty;
+            if (!parser.TryParseDirective(out var directiveSyntax))
+            {
+                _regionIsDirective.Push(false);
+                return;
+            }
+            
+            var directiveLineSpan = this.GetLineSpan(node);
+            this.ProcessTextSection(directiveLineSpan.Start);
+            _unprocessedTextStart = directiveLineSpan.End;
+            _regionIsDirective.Push(true);
+            this.EnterDirectiveRegion(_templateScope.ValidateAndAdd(directiveSyntax));
+        }
+
+        public override void VisitEndRegionDirectiveTrivia(EndRegionDirectiveTriviaSyntax node)
+        {
+            var directiveIsEnding = _regionIsDirective.Pop();
+
+            if (!directiveIsEnding)
+            {
+                return;
+            }
+            
+            var directiveLineSpan = this.GetLineSpan(node);
+            this.ProcessTextSection(directiveLineSpan.Start);
+            _unprocessedTextStart = directiveLineSpan.End;
+            this.ExitDirectiveRegion();
+        }
+
+        protected virtual void EnterDirectiveRegion(TemplateContainer templateContainer)
+        {
+            
+        }
+
+        protected virtual void ExitDirectiveRegion()
+        {
+            
+        }
+
+        private void ProcessTextSection(int unprocessedTextEnd)
+        {
+            var span = TextSpan.FromBounds(_unprocessedTextStart, unprocessedTextEnd);
+
+            if (span.Length == 0)
+            {
+                return;
+            }
+
+            foreach (var templateNode in _templateScope.RenderTextSection(SourceText.ToString(span)))
+            {
+                this.ProcessTemplateNode(templateNode);
+            }
+        }
+        
+
+        protected virtual void ProcessTemplateNode(ITemplateNode node)
+        {
+        }
+
+        protected abstract void HandleDiagnostic(ITemplateDiagnostic diagnosticKind, TextSpan span);
+
+        protected void Complete()
+        {
+            if (_regionIsDirective.Count != 0)
+            {
+                throw new InvalidTemplateException("TemplateWalker completed with open region");
+            }
+            
+            var span = TextSpan.FromBounds(_unprocessedTextStart, SourceText.Length);
+
+            if (span.Length != 0)
+            {
+                foreach (var templateNode in _templateScope.RenderTextSection(SourceText.ToString(span)))
+                {
+                    this.ProcessTemplateNode(templateNode);
+                }
+            }
+        }
+
+        private TextSpan GetLineSpan(DirectiveTriviaSyntax node) =>
+            SourceText.Lines.Single(a => a.Span.Contains(node.Span)).SpanIncludingLineBreak;
     }
 }

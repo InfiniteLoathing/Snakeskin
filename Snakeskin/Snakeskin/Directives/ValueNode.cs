@@ -1,12 +1,9 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 
 namespace InfiniteLoathing.Snakeskin.Directives
 {
     internal class ValueNode : ITemplateNode
     {
-        public TemplateNodeKind Kind => TemplateNodeKind.Value;
-        
         public ValueNodeKind ValueKind { get; }
         
         public bool IsArray { get; }

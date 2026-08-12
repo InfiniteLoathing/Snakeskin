@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace InfiniteLoathing.Snakeskin.Exceptions
+﻿namespace InfiniteLoathing.Snakeskin.Exceptions
 {
     internal class InvalidValueNodeException : InvalidTemplateException
     {

@@ -1,5 +1,5 @@
 ﻿// @template Test
-#region @replace gest,                mest              , nest             
+#region @replace #gest.guest[]:"test",                #mest              , nest[]             
 namespace InfiniteLoathing.Snakeskin.Sample
 {
     #region @replace Test

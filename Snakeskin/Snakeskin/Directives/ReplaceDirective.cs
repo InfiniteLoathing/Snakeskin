@@ -1,16 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace InfiniteLoathing.Snakeskin.Directives
+﻿namespace InfiniteLoathing.Snakeskin.Directives
 {
-    internal class ReplaceDirective : ParentDirective
+    internal class Replace : TemplateContainer
     {
-        public override TemplateNodeKind Kind => TemplateNodeKind.Replace;
-
-        public override bool SupportsValueKind(ValueNodeKind kind, bool isArray) =>
-            !isArray && kind == ValueNodeKind.String;
-
-        public override bool HasValues => true;
     }
 }

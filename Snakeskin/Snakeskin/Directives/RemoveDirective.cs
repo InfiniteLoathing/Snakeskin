@@ -2,10 +2,8 @@
 
 namespace InfiniteLoathing.Snakeskin.Directives
 {
-    internal class RemoveDirective : ParentDirective
+    internal class RemoveDirective : TemplateContainer
     {
-        public override TemplateNodeKind Kind => TemplateNodeKind.Remove;
-
         public override StringBuilder Render(StringBuilder builder) => builder;
     }
 }
