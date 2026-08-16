@@ -2,7 +2,7 @@
 
 namespace InfiniteLoathing.Snakeskin.Diagnostics
 {
-    internal class InvalidArgumentError : ITemplateError
+    internal class InvalidArgumentDiagnostic : ITemplateDiagnostic
     {
         public readonly string DirectiveName;
 
@@ -12,7 +12,7 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
 
         public readonly Location Location;
         
-        public InvalidArgumentError(string directiveName, bool isObject, bool isArray, Location location)
+        public InvalidArgumentDiagnostic(string directiveName, bool isObject, bool isArray, Location location)
         {
             DirectiveName = directiveName;
             IsObject = isObject;

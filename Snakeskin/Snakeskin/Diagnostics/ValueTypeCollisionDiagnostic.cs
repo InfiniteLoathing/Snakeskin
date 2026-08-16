@@ -4,13 +4,13 @@ using Microsoft.CodeAnalysis;
 
 namespace InfiniteLoathing.Snakeskin.Diagnostics
 {
-    internal class ValueParentTypeCollisionError : ITemplateError
+    internal class ValueTypeCollisionDiagnostic : ITemplateDiagnostic
     {
-        private readonly ValueParentSyntax _syntax;
+        private readonly ValueSyntax _syntax;
         private readonly ValueNode _node;
 
-        public ValueParentTypeCollisionError(
-            ValueParentSyntax syntax,
+        public ValueTypeCollisionDiagnostic(
+            ValueSyntax syntax,
             ValueNode node)
         {
             _syntax = syntax;
@@ -19,6 +19,7 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
         
         public Diagnostic CreateDiagnostic()
         {
+            var syntaxDisplayName = ValueDisplayNames.Get(_syntax.IsObject, _syntax.IsArray);
             var nodeDisplayName = ValueDisplayNames.Get(_node.IsObject, _node.IsArray);
 
             return Diagnostic.Create(
@@ -28,6 +29,7 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
                 messageArgs: new object[]
                 {
                     _syntax.Identifier,
+                    syntaxDisplayName,
                     nodeDisplayName
                 });
         }

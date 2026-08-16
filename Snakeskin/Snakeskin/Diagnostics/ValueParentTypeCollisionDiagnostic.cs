@@ -4,32 +4,30 @@ using Microsoft.CodeAnalysis;
 
 namespace InfiniteLoathing.Snakeskin.Diagnostics
 {
-    
-    internal class ValuePropertyTypeCollisionError : ITemplateError
+    internal class ValueParentTypeCollisionDiagnostic : ITemplateDiagnostic
     {
-        private readonly ValueSyntax _syntax;
+        private readonly ValueParentSyntax _syntax;
         private readonly ValueNode _node;
 
-        public ValuePropertyTypeCollisionError(ValueSyntax syntax, ValueNode node)
+        public ValueParentTypeCollisionDiagnostic(
+            ValueParentSyntax syntax,
+            ValueNode node)
         {
             _syntax = syntax;
             _node = node;
         }
-
+        
         public Diagnostic CreateDiagnostic()
         {
-            var syntaxDisplayName = ValueDisplayNames.Get(_syntax.IsObject, _syntax.IsArray);
             var nodeDisplayName = ValueDisplayNames.Get(_node.IsObject, _node.IsArray);
 
             return Diagnostic.Create(
-                descriptor: DiagnosticDescriptors.ValuePropertyTypeCollision,
+                descriptor: DiagnosticDescriptors.ValueTypeMismatch,
                 location: _syntax.Location,
                 additionalLocations: new[] { _node.Location },
                 messageArgs: new object[]
                 {
-                    _syntax.Parent.Identifier,
                     _syntax.Identifier,
-                    syntaxDisplayName,
                     nodeDisplayName
                 });
         }

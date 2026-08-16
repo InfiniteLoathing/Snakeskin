@@ -3,13 +3,13 @@ using Microsoft.CodeAnalysis;
 
 namespace InfiniteLoathing.Snakeskin.Diagnostics
 {
-    internal class UnexpectedTokenError : ITemplateError
+    internal class UnexpectedTokenDiagnostic : ITemplateDiagnostic
     {
         public TokenKind Kind;
 
         public Location Location;
 
-        public UnexpectedTokenError(TokenKind kind, Location location)
+        public UnexpectedTokenDiagnostic(TokenKind kind, Location location)
         {
             Kind = kind;
             Location = location;

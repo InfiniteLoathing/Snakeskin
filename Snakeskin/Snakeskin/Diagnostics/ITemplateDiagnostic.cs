@@ -2,7 +2,7 @@
 
 namespace InfiniteLoathing.Snakeskin.Diagnostics
 {
-    internal interface ITemplateError
+    internal interface ITemplateDiagnostic
     {
         Diagnostic CreateDiagnostic();
     }

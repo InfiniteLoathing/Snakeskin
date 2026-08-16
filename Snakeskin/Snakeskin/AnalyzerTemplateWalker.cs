@@ -18,9 +18,9 @@ namespace InfiniteLoathing.Snakeskin
             
         }
 
-        protected override void HandleDiagnostic(ITemplateError errorKind)
+        public override void Handle(ITemplateDiagnostic diagnosticKind)
         {
-            var test = errorKind.CreateDiagnostic();
+            var test = diagnosticKind.CreateDiagnostic();
             _context.ReportDiagnostic(test);
         }
     }

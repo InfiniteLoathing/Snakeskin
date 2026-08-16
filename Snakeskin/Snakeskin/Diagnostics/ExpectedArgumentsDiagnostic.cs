@@ -2,14 +2,14 @@
 
 namespace InfiniteLoathing.Snakeskin.Diagnostics
 {
-    internal class ExpectedArgumentsError : ITemplateError
+    internal class ExpectedArgumentsDiagnostic : ITemplateDiagnostic
     {
         public readonly string DirectiveType;
         public readonly Location Location;
 
         public string SimpleMessage { get; set; }
 
-        public ExpectedArgumentsError(string directiveType, Location location)
+        public ExpectedArgumentsDiagnostic(string directiveType, Location location)
         {
             DirectiveType = directiveType;
             Location = location;

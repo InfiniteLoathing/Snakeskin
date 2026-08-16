@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -13,12 +12,12 @@ namespace InfiniteLoathing.Snakeskin.Templating
         public ReplacementScope ReplacementScope { get; private set; }
         private readonly Dictionary<string, ValueNode> _values = new Dictionary<string, ValueNode>();
         private readonly Stack<DirectiveScope> _directiveScopes = new Stack<DirectiveScope>();
-        private readonly Action<ITemplateError> _handleDiagnostic;
+        private readonly ITemplateDiagnosticHandler _diagnosticHandler;
         private readonly DirectiveScope _emptyScope = new DirectiveScope();
 
-        public TemplateScope(Action<ITemplateError> handleDiagnostic)
+        public TemplateScope(ITemplateDiagnosticHandler diagnosticHandler)
         {
-            _handleDiagnostic = handleDiagnostic;
+            _diagnosticHandler = diagnosticHandler;
             this.RecalculateReplacements();
         }
 
@@ -32,8 +31,8 @@ namespace InfiniteLoathing.Snakeskin.Templating
             {
                 if (value.IsObject || value.IsArray)
                 {
-                    _handleDiagnostic(
-                        new InvalidArgumentError(Keywords.Remove, value.IsObject, value.IsArray, value.Location));
+                    _diagnosticHandler.Handle(
+                        new InvalidArgumentDiagnostic(Keywords.Remove, value.IsObject, value.IsArray, value.Location));
                     continue;
                 }
 
@@ -57,8 +56,8 @@ namespace InfiniteLoathing.Snakeskin.Templating
             var iterator = forEachDirectiveSyntax.Iterator;
             if (iterator.IsArray)
             {
-                _handleDiagnostic(
-                    new InvalidArgumentError(Keywords.Remove, iterator.IsObject, iterator.IsArray, iterator.Location));
+                _diagnosticHandler.Handle(
+                    new InvalidArgumentDiagnostic(Keywords.Remove, iterator.IsObject, iterator.IsArray, iterator.Location));
                 _directiveScopes.Push(_emptyScope);
                 return;
             }
@@ -66,8 +65,8 @@ namespace InfiniteLoathing.Snakeskin.Templating
             var array = forEachDirectiveSyntax.Array;
             if (!array.IsArray)
             {
-                _handleDiagnostic(
-                    new InvalidArgumentError(Keywords.Remove, array.IsObject, array.IsArray, array.Location));
+                _diagnosticHandler.Handle(
+                    new InvalidArgumentDiagnostic(Keywords.Remove, array.IsObject, array.IsArray, array.Location));
                 _directiveScopes.Push(_emptyScope);
                 return;
                 
@@ -136,7 +135,7 @@ namespace InfiniteLoathing.Snakeskin.Templating
                 var matches = node.TypeMatches(valueSyntax);
                 if (!matches)
                 {
-                    _handleDiagnostic(new ValueTypeCollisionError(valueSyntax, node));
+                    _diagnosticHandler.Handle(new ValueTypeCollisionDiagnostic(valueSyntax, node));
                 }
                 return matches;
             }
@@ -146,7 +145,7 @@ namespace InfiniteLoathing.Snakeskin.Templating
                 var matches = node.TypeMatches(valueSyntax);
                 if (!matches)
                 {
-                    _handleDiagnostic(new ValueTypeCollisionError(valueSyntax, node));
+                    _diagnosticHandler.Handle(new ValueTypeCollisionDiagnostic(valueSyntax, node));
                 }
                 return matches;
             }
@@ -184,7 +183,7 @@ namespace InfiniteLoathing.Snakeskin.Templating
                 var matches = parentNode.IsObject && !parentNode.IsArray;
                 if (!matches)
                 {
-                    _handleDiagnostic(new ValueParentTypeCollisionError(valueParentSyntax, parentNode));
+                    _diagnosticHandler.Handle(new ValueParentTypeCollisionDiagnostic(valueParentSyntax, parentNode));
                 }
                 return matches;
             }
@@ -194,7 +193,7 @@ namespace InfiniteLoathing.Snakeskin.Templating
                 var matches = parentNode.IsObject && !parentNode.IsArray;
                 if (!matches)
                 {
-                    _handleDiagnostic(new ValueParentTypeCollisionError(valueParentSyntax, parentNode));
+                    _diagnosticHandler.Handle(new ValueParentTypeCollisionDiagnostic(valueParentSyntax, parentNode));
                 }
                 return matches;
             }
@@ -215,7 +214,7 @@ namespace InfiniteLoathing.Snakeskin.Templating
                 var matches = propertyNode.TypeMatches(valueSyntax);
                 if (!matches)
                 {
-                    _handleDiagnostic(new ValuePropertyTypeCollisionError(valueSyntax, propertyNode));
+                    _diagnosticHandler.Handle(new ValuePropertyTypeCollisionDiagnostic(valueSyntax, propertyNode));
                 }
                 return matches;
             }

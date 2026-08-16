@@ -12,7 +12,7 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace InfiniteLoathing.Snakeskin
 {
-    internal abstract class TemplateWalker : CSharpSyntaxWalker
+    internal abstract class TemplateWalker : CSharpSyntaxWalker, ITemplateDiagnosticHandler
     {
         private readonly string _filePath;
         private readonly TemplateScope _templateScope;
@@ -23,7 +23,7 @@ namespace InfiniteLoathing.Snakeskin
         protected TemplateWalker(string filePath) : base(SyntaxWalkerDepth.StructuredTrivia)
         {
             _filePath = filePath;
-            _templateScope = new TemplateScope(this.HandleDiagnostic);
+            _templateScope = new TemplateScope(this);
             _unprocessedTextStart = 0;
         }
 
@@ -55,7 +55,7 @@ namespace InfiniteLoathing.Snakeskin
                     _filePath,
                     node.SyntaxTree.GetText(),
                     regionTextTrivia.First().GetLocation().SourceSpan.Start),
-                handleDiagnostic: this.HandleDiagnostic);
+                diagnosticHandler: this);
 
             // low: Reorganize this
             switch (parser.ParseDirectiveKind())
@@ -111,6 +111,8 @@ namespace InfiniteLoathing.Snakeskin
             this.ExitDirectiveRegion();
         }
 
+        public abstract void Handle(ITemplateDiagnostic diagnostic);
+
         protected virtual void EnterDirectiveRegion(DirectiveSyntax directiveSyntax)
         {
             
@@ -149,8 +151,6 @@ namespace InfiniteLoathing.Snakeskin
         protected virtual void ProcessTextNode(TextNode node)
         {
         }
-
-        protected abstract void HandleDiagnostic(ITemplateError error);
 
         private TextSpan GetLineSpan(DirectiveTriviaSyntax node) =>
             node.SyntaxTree.GetText().Lines.Single(a => a.Span.Contains(node.Span)).SpanIncludingLineBreak;

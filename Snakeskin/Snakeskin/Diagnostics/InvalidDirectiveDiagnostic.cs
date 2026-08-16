@@ -2,12 +2,12 @@
 
 namespace InfiniteLoathing.Snakeskin.Diagnostics
 {
-    internal class InvalidDirectiveError : ITemplateError
+    internal class InvalidDirectiveDiagnostic : ITemplateDiagnostic
     {
         public readonly string Name;
         public readonly Location Location;
 
-        public InvalidDirectiveError(string name, Location location)
+        public InvalidDirectiveDiagnostic(string name, Location location)
         {
             Name = name;
             Location = location;

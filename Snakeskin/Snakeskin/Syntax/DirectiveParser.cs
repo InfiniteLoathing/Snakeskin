@@ -10,17 +10,17 @@ namespace InfiniteLoathing.Snakeskin.Syntax
     internal ref struct DirectiveParser
     {
         private RegionLexer _lexer;
-        private readonly Action<ITemplateError> _handleDiagnostic;
+        private readonly ITemplateDiagnosticHandler _diagnosticHandler;
         private readonly SyntaxTreeLocator _locator;
         
         public DirectiveParser(
             ReadOnlySpan<char> text,
             SyntaxTreeLocator locator,
-            Action<ITemplateError> handleDiagnostic)
+            ITemplateDiagnosticHandler diagnosticHandler)
         {
             _lexer = new RegionLexer(text);
             _locator = locator;
-            _handleDiagnostic = handleDiagnostic;
+            _diagnosticHandler = diagnosticHandler;
         }
 
         public bool Accept(TokenKind kind, out Token token)
@@ -40,7 +40,7 @@ namespace InfiniteLoathing.Snakeskin.Syntax
             {
                 return true;
             }
-            _handleDiagnostic(new UnexpectedTokenError(token.Kind, _locator.Locate(token.TextSpan)));
+            _diagnosticHandler.Handle(new UnexpectedTokenDiagnostic(token.Kind, _locator.Locate(token.TextSpan)));
             return false;
         }
 
@@ -67,8 +67,8 @@ namespace InfiniteLoathing.Snakeskin.Syntax
                 return DirectiveSyntaxKind.ForEach;
             }
 
-            _handleDiagnostic(
-                new InvalidDirectiveError(identifier.CharSpan.ToString(), _locator.Locate(identifier.TextSpan)));
+            _diagnosticHandler.Handle(
+                new InvalidDirectiveDiagnostic(identifier.CharSpan.ToString(), _locator.Locate(identifier.TextSpan)));
             
             return DirectiveSyntaxKind.Invalid;
         }
@@ -77,8 +77,8 @@ namespace InfiniteLoathing.Snakeskin.Syntax
         {
             if (_lexer.Current.Kind == TokenKind.End)
             {
-                _handleDiagnostic(
-                    new ExpectedArgumentsError(Keywords.Replace, _locator.Locate(_lexer.Current.TextSpan)));
+                _diagnosticHandler.Handle(
+                    new ExpectedArgumentsDiagnostic(Keywords.Replace, _locator.Locate(_lexer.Current.TextSpan)));
                 
                 return new ReplaceDirectiveSyntax(ImmutableArray<ValueSyntax>.Empty);
             }
