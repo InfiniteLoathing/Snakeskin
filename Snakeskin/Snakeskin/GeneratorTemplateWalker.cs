@@ -4,6 +4,7 @@ using InfiniteLoathing.Snakeskin.Diagnostics;
 using InfiniteLoathing.Snakeskin.Exceptions;
 using InfiniteLoathing.Snakeskin.Syntax;
 using InfiniteLoathing.Snakeskin.Templating;
+using Microsoft.CodeAnalysis.Text;
 
 namespace InfiniteLoathing.Snakeskin
 {
@@ -38,15 +39,12 @@ namespace InfiniteLoathing.Snakeskin
 
         protected override void ExitDirectiveRegion() => _hierarchy.Pop();
 
-        protected override void ProcessValueNode(ValueNode node) => _hierarchy.Peek().Children.Add(node);
+        protected override void ProcessValueNode(ValueNode node, TextSpan _) => _hierarchy.Peek().Children.Add(node);
         
         protected override void ProcessTextNode(TextNode node) => _hierarchy.Peek().Children.Add(node);
 
-        public override void Handle(ITemplateDiagnostic _)
-        {
-            var test = _.CreateDiagnostic();
+        public override void Handle(ITemplateDiagnostic _) =>
             throw new InvalidTemplateException(
                 "Template generation failed. Check analyzer template walker for details.");
-        }
     }
 }

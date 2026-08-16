@@ -36,7 +36,7 @@ namespace InfiniteLoathing.Snakeskin
                 throw new InvalidTemplateException("TemplateWalker completed with open region");
             }
             
-            this.ProcessTextSection(node.SyntaxTree, node.SyntaxTree.Length);
+            this.ProcessTextSection(node.SyntaxTree.GetText(), node.SyntaxTree.Length);
         }
 
         public override void VisitRegionDirectiveTrivia(RegionDirectiveTriviaSyntax node)
@@ -51,7 +51,7 @@ namespace InfiniteLoathing.Snakeskin
 
             var parser = new DirectiveParser(
                 text: regionTextTrivia.ToFullString().AsSpan(),
-                locator: new SyntaxTreeLocator(
+                locator: new SourceTextLocator(
                     _filePath,
                     node.SyntaxTree.GetText(),
                     regionTextTrivia.First().GetLocation().SourceSpan.Start),
@@ -90,7 +90,7 @@ namespace InfiniteLoathing.Snakeskin
             }
             
             var directiveLineSpan = this.GetLineSpan(node);
-            this.ProcessTextSection(node.SyntaxTree, directiveLineSpan.Start);
+            this.ProcessTextSection(node.SyntaxTree.GetText(), directiveLineSpan.Start);
             _unprocessedTextStart = directiveLineSpan.End;
         }
 
@@ -104,7 +104,7 @@ namespace InfiniteLoathing.Snakeskin
             }
             
             var directiveLineSpan = this.GetLineSpan(node);
-            this.ProcessTextSection(node.SyntaxTree, directiveLineSpan.Start);
+            this.ProcessTextSection(node.SyntaxTree.GetText(), directiveLineSpan.Start);
             _unprocessedTextStart = directiveLineSpan.End;
             // todo: Consider wrapping this logic into ExitDirectiveRegion
             _templateScope.ExitScope();
@@ -123,8 +123,9 @@ namespace InfiniteLoathing.Snakeskin
             
         }
 
-        private void ProcessTextSection(SyntaxTree syntaxTree, int unprocessedTextEnd)
+        private void ProcessTextSection(SourceText sourceText, int unprocessedTextEnd)
         {
+            var currentPosition = _unprocessedTextStart;
             var span = TextSpan.FromBounds(_unprocessedTextStart, unprocessedTextEnd);
 
             if (span.Length == 0)
@@ -132,19 +133,25 @@ namespace InfiniteLoathing.Snakeskin
                 return;
             }
 
-            foreach (var textSection in _templateScope.ReplacementScope.Split(syntaxTree.GetText().ToString(span)))
+            var stts = sourceText.ToString(span);
+            var test = _templateScope.ReplacementScope.Split(stts);
+
+            foreach (var textSection in _templateScope.ReplacementScope.Split(sourceText.ToString(span)))
             {
                 if (_templateScope.ReplacementScope.TryGetReplaceNode(textSection, out var valueNode))
                 {
-                    this.ProcessValueNode(valueNode);
-                    continue;
+                    this.ProcessValueNode(valueNode, new TextSpan(currentPosition, textSection.Length));
+                }
+                else
+                {
+                    this.ProcessTextNode(new TextNode(textSection));
                 }
 
-                this.ProcessTextNode(new TextNode(textSection));
+                currentPosition += textSection.Length;
             }
         }
 
-        protected virtual void ProcessValueNode(ValueNode node)
+        protected virtual void ProcessValueNode(ValueNode node, TextSpan location)
         {
         }
 

@@ -69,6 +69,10 @@ namespace InfiniteLoathing.Snakeskin.Templating
             return property;
         }
 
+        public virtual string ToDisplayName() => ParentIdentifier is null
+            ? Identifier
+            : $"{ParentIdentifier}.{Identifier}";
+
         public virtual StringBuilder Render(StringBuilder builder)
         {
             // todo: this

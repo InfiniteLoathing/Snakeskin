@@ -11,11 +11,11 @@ namespace InfiniteLoathing.Snakeskin.Syntax
     {
         private RegionLexer _lexer;
         private readonly ITemplateDiagnosticHandler _diagnosticHandler;
-        private readonly SyntaxTreeLocator _locator;
+        private readonly SourceTextLocator _locator;
         
         public DirectiveParser(
             ReadOnlySpan<char> text,
-            SyntaxTreeLocator locator,
+            SourceTextLocator locator,
             ITemplateDiagnosticHandler diagnosticHandler)
         {
             _lexer = new RegionLexer(text);

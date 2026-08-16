@@ -3,13 +3,13 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace InfiniteLoathing.Snakeskin
 {
-    internal class SyntaxTreeLocator
+    internal class SourceTextLocator
     {
         private readonly string _filePath;
         private readonly SourceText _sourceText;
         private readonly int _offset;
         
-        public SyntaxTreeLocator(string filePath, SourceText sourceText, int offset)
+        public SourceTextLocator(string filePath, SourceText sourceText, int offset = 0)
         {
             _filePath = filePath;
             _sourceText = sourceText;

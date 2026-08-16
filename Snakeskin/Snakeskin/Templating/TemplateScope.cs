@@ -21,7 +21,7 @@ namespace InfiniteLoathing.Snakeskin.Templating
             this.RecalculateReplacements();
         }
 
-        public void AddDirectiveScope(DirectiveSyntax directiveSyntax) => _directiveScopes.Push(_emptyScope);
+        public void AddDirectiveScope(DirectiveSyntax directiveSyntax) => this.PushScope(_emptyScope);
 
         public void AddDirectiveScope(ReplaceDirectiveSyntax replaceDirectiveSyntax)
         {
@@ -41,15 +41,15 @@ namespace InfiniteLoathing.Snakeskin.Templating
                     validValues.Add(value.ReplacementText, node);
                 }
             }
-            
-            _directiveScopes.Push(new DirectiveScope(replacements: validValues.ToImmutableDictionary()));
+
+            this.PushScope(new DirectiveScope(replacements: validValues.ToImmutableDictionary()));
         }
 
         public void AddDirectiveScope(ForEachDirectiveSyntax forEachDirectiveSyntax)
         {
             if (!forEachDirectiveSyntax.IsValid)
             {
-                _directiveScopes.Push(_emptyScope);
+                this.PushScope(_emptyScope);
                 return;
             }
 
@@ -58,7 +58,7 @@ namespace InfiniteLoathing.Snakeskin.Templating
             {
                 _diagnosticHandler.Handle(
                     new InvalidArgumentDiagnostic(Keywords.Remove, iterator.IsObject, iterator.IsArray, iterator.Location));
-                _directiveScopes.Push(_emptyScope);
+                this.PushScope(_emptyScope);
                 return;
             }
 
@@ -67,7 +67,7 @@ namespace InfiniteLoathing.Snakeskin.Templating
             {
                 _diagnosticHandler.Handle(
                     new InvalidArgumentDiagnostic(Keywords.Remove, array.IsObject, array.IsArray, array.Location));
-                _directiveScopes.Push(_emptyScope);
+                this.PushScope(_emptyScope);
                 return;
                 
             }
@@ -113,9 +113,7 @@ namespace InfiniteLoathing.Snakeskin.Templating
                 }
             }
 
-            this.ReplacementScope = new ReplacementScope(
-                expression: new Regex(string.Join("|", newReplacements.Keys.Select(Regex.Escape))),
-                replaceValues: newReplacements.ToImmutableDictionary());
+            this.ReplacementScope = new ReplacementScope(newReplacements.ToImmutableDictionary());
         }
 
         private bool Require(ValueSyntax valueSyntax, out ValueNode node)
