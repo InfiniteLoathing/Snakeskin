@@ -28,6 +28,9 @@ namespace InfiniteLoathing.Snakeskin
                     _hierarchy.Push(new RemoveNode());
                     break;
                 case DirectiveSyntaxKind.ForEach:
+                    var forEachSyntax = (ForEachDirectiveSyntax)directiveSyntax;
+                    // todo: maybe directives should resolve into nodes earlier than this?
+                    _hierarchy.Push(new ForEachNode(forEachSyntax.Iterator.Identifier, forEachSyntax.Array.Identifier));
                     break;
                 case DirectiveSyntaxKind.None:
                 case DirectiveSyntaxKind.Invalid:

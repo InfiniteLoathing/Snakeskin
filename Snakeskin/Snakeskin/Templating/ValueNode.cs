@@ -69,13 +69,14 @@ namespace InfiniteLoathing.Snakeskin.Templating
             return property;
         }
 
+        // todo: finalize name
         public virtual string GetIdentifierName() => ParentIdentifier is null
             ? Identifier
             : $"{ParentIdentifier}.{Identifier}";
 
         public virtual StringBuilder Render(StringBuilder builder)
         {
-            // todo: this
+            //todo: this
             throw new System.NotImplementedException();
         }
     }

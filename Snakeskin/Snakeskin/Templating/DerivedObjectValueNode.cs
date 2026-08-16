@@ -1,4 +1,5 @@
-﻿using InfiniteLoathing.Snakeskin.Syntax;
+﻿using System.Text;
+using InfiniteLoathing.Snakeskin.Syntax;
 
 namespace InfiniteLoathing.Snakeskin.Templating
 {
@@ -48,6 +49,12 @@ namespace InfiniteLoathing.Snakeskin.Templating
             Properties.Add(valueSyntax.Identifier, property);
 
             return property;
+        }
+
+        public override StringBuilder Render(StringBuilder builder)
+        {
+            //todo: this
+            throw new System.NotImplementedException();
         }
     }
 }
