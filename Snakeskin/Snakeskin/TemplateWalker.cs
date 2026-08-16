@@ -14,13 +14,15 @@ namespace InfiniteLoathing.Snakeskin
 {
     internal abstract class TemplateWalker : CSharpSyntaxWalker
     {
+        private readonly string _filePath;
         private readonly TemplateScope _templateScope;
         private readonly Stack<bool> _regionIsDirective = new Stack<bool>();
         
         private int _unprocessedTextStart;
 
-        protected TemplateWalker() : base(SyntaxWalkerDepth.StructuredTrivia)
+        protected TemplateWalker(string filePath) : base(SyntaxWalkerDepth.StructuredTrivia)
         {
+            _filePath = filePath;
             _templateScope = new TemplateScope(this.HandleDiagnostic);
             _unprocessedTextStart = 0;
         }
@@ -50,8 +52,9 @@ namespace InfiniteLoathing.Snakeskin
             var parser = new DirectiveParser(
                 text: regionTextTrivia.ToFullString().AsSpan(),
                 locator: new SyntaxTreeLocator(
-                    syntaxTree: node.SyntaxTree,
-                    offset: regionTextTrivia.First().GetLocation().SourceSpan.Start),
+                    _filePath,
+                    node.SyntaxTree.GetText(),
+                    regionTextTrivia.First().GetLocation().SourceSpan.Start),
                 handleDiagnostic: this.HandleDiagnostic);
 
             // low: Reorganize this

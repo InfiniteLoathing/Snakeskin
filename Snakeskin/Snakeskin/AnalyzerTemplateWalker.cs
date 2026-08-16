@@ -8,7 +8,7 @@ namespace InfiniteLoathing.Snakeskin
     {
         private readonly AdditionalFileAnalysisContext _context;
         
-        public AnalyzerTemplateWalker(AdditionalFileAnalysisContext context)
+        public AnalyzerTemplateWalker(AdditionalFileAnalysisContext context) : base(context.AdditionalFile.Path)
         {
             _context = context;
         }
@@ -20,7 +20,8 @@ namespace InfiniteLoathing.Snakeskin
 
         protected override void HandleDiagnostic(ITemplateError errorKind)
         {
-            _context.ReportDiagnostic(errorKind.CreateDiagnostic());
+            var test = errorKind.CreateDiagnostic();
+            _context.ReportDiagnostic(test);
         }
     }
 }

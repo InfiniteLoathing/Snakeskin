@@ -18,7 +18,20 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
 
         public Diagnostic CreateDiagnostic()
         {
-            throw new System.NotImplementedException();
+            var syntaxDisplayName = ValueDisplayNames.Get(_syntax.IsObject, _syntax.IsArray);
+            var nodeDisplayName = ValueDisplayNames.Get(_node.IsObject, _node.IsArray);
+
+            return Diagnostic.Create(
+                descriptor: DiagnosticDescriptors.ValuePropertyTypeCollision,
+                location: _syntax.Location,
+                additionalLocations: new[] { _node.Location },
+                messageArgs: new object[]
+                {
+                    _syntax.Parent.Identifier,
+                    _syntax.Identifier,
+                    syntaxDisplayName,
+                    nodeDisplayName
+                });
         }
     }
 }

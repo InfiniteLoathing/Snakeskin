@@ -22,7 +22,7 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
             var nodeDisplayName = ValueDisplayNames.Get(_node.IsObject, _node.IsArray);
 
             return Diagnostic.Create(
-                descriptor: DiagnosticDescriptors.ValueTypeCollision,
+                descriptor: DiagnosticDescriptors.ValueTypeMismatch,
                 location: _syntax.Location,
                 additionalLocations: new[] { _node.Location },
                 messageArgs: new object[]

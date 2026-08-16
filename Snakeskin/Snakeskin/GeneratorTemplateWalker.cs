@@ -11,7 +11,7 @@ namespace InfiniteLoathing.Snakeskin
     {
         private readonly Stack<ParentNode> _hierarchy = new Stack<ParentNode>();
         
-        public GeneratorTemplateWalker()
+        public GeneratorTemplateWalker(string filePath) : base(filePath)
         {
             _hierarchy.Push(new RootNode());
         }

@@ -130,7 +130,7 @@ namespace InfiniteLoathing.Snakeskin.Syntax
 
         private bool TryParseValue(out ValueSyntax value)
         {
-            var start = _lexer.Position;
+            var start = _lexer.Current.TextSpan.Start;
             var isObject = this.Accept(TokenKind.Pound, out _);
 
             if (!this.Expect(TokenKind.String, out var identifier))
@@ -172,7 +172,7 @@ namespace InfiniteLoathing.Snakeskin.Syntax
                 hasReplacementText
                     ? quotedReplacementText.Slice(1, quotedReplacementText.CharSpan.Length - 2).ToString()
                     : null,
-                location: _locator.Locate(TextSpan.FromBounds(start, _lexer.Position))
+                location: _locator.Locate(TextSpan.FromBounds(start, _lexer.Current.TextSpan.End))
                 );
             return true;
         }

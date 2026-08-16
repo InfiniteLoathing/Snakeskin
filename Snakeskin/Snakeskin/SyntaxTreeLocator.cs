@@ -5,16 +5,21 @@ namespace InfiniteLoathing.Snakeskin
 {
     internal class SyntaxTreeLocator
     {
-        private readonly SyntaxTree _syntaxTree;
+        private readonly string _filePath;
+        private readonly SourceText _sourceText;
         private readonly int _offset;
         
-        public SyntaxTreeLocator(SyntaxTree syntaxTree, int offset)
+        public SyntaxTreeLocator(string filePath, SourceText sourceText, int offset)
         {
-            _syntaxTree = syntaxTree;
+            _filePath = filePath;
+            _sourceText = sourceText;
             _offset = offset;
         }
 
-        public Location Locate(TextSpan textSpan) =>
-            Location.Create(_syntaxTree, new TextSpan(textSpan.Start + _offset, textSpan.Length));
+        public Location Locate(TextSpan textSpan)
+        {
+            var offsetSpan = new TextSpan(_offset + textSpan.Start, textSpan.Length);
+            return Location.Create(_filePath, offsetSpan, _sourceText.Lines.GetLinePositionSpan(offsetSpan));
+        }
     }
 }

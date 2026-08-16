@@ -14,7 +14,7 @@ namespace InfiniteLoathing.Snakeskin.Templating
         {
             _expression = expression;
             _replaceValues = replaceValues;
-            _longestReplaceValue = replaceValues.Keys.Max(x => x.Length);
+            _longestReplaceValue = replaceValues.Any() ? replaceValues.Keys.Max(x => x.Length) : 0;
         }
 
         public string[] Split(string text) => _expression.Split(text);
