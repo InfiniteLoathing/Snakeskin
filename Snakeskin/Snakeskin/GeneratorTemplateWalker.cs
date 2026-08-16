@@ -4,8 +4,6 @@ using InfiniteLoathing.Snakeskin.Diagnostics;
 using InfiniteLoathing.Snakeskin.Exceptions;
 using InfiniteLoathing.Snakeskin.Syntax;
 using InfiniteLoathing.Snakeskin.Templating;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Text;
 
 namespace InfiniteLoathing.Snakeskin
 {
@@ -13,7 +11,7 @@ namespace InfiniteLoathing.Snakeskin
     {
         private readonly Stack<ParentNode> _hierarchy = new Stack<ParentNode>();
         
-        public GeneratorTemplateWalker(SourceText sourceText) : base(sourceText)
+        public GeneratorTemplateWalker()
         {
             _hierarchy.Push(new RootNode());
         }

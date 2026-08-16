@@ -14,7 +14,7 @@ namespace InfiniteLoathing.Snakeskin
     {
         private readonly AdditionalFileAnalysisContext _context;
         
-        public AnalyzerTemplateWalker(AdditionalFileAnalysisContext context, SourceText sourceText) : base(sourceText)
+        public AnalyzerTemplateWalker(AdditionalFileAnalysisContext context)
         {
             _context = context;
         }

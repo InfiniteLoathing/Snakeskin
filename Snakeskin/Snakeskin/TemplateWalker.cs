@@ -14,16 +14,13 @@ namespace InfiniteLoathing.Snakeskin
 {
     internal abstract class TemplateWalker : CSharpSyntaxWalker
     {
-        private readonly SourceText _sourceText;
         private readonly TemplateScope _templateScope;
         private readonly Stack<bool> _regionIsDirective = new Stack<bool>();
         
         private int _unprocessedTextStart;
 
-        protected TemplateWalker(SourceText sourceText)
-            : base(SyntaxWalkerDepth.StructuredTrivia)
+        protected TemplateWalker() : base(SyntaxWalkerDepth.StructuredTrivia)
         {
-            _sourceText = sourceText;
             _templateScope = new TemplateScope(this.HandleDiagnostic);
             _unprocessedTextStart = 0;
         }
@@ -37,7 +34,7 @@ namespace InfiniteLoathing.Snakeskin
                 throw new InvalidTemplateException("TemplateWalker completed with open region");
             }
             
-            this.ProcessTextSection(node.SyntaxTree.Length);
+            this.ProcessTextSection(node.SyntaxTree, node.SyntaxTree.Length);
         }
 
         public override void VisitRegionDirectiveTrivia(RegionDirectiveTriviaSyntax node)
@@ -90,7 +87,7 @@ namespace InfiniteLoathing.Snakeskin
             }
             
             var directiveLineSpan = this.GetLineSpan(node);
-            this.ProcessTextSection(directiveLineSpan.Start);
+            this.ProcessTextSection(node.SyntaxTree, directiveLineSpan.Start);
             _unprocessedTextStart = directiveLineSpan.End;
         }
 
@@ -104,7 +101,7 @@ namespace InfiniteLoathing.Snakeskin
             }
             
             var directiveLineSpan = this.GetLineSpan(node);
-            this.ProcessTextSection(directiveLineSpan.Start);
+            this.ProcessTextSection(node.SyntaxTree, directiveLineSpan.Start);
             _unprocessedTextStart = directiveLineSpan.End;
             // todo: Consider wrapping this logic into ExitDirectiveRegion
             _templateScope.ExitScope();
@@ -121,7 +118,7 @@ namespace InfiniteLoathing.Snakeskin
             
         }
 
-        private void ProcessTextSection(int unprocessedTextEnd)
+        private void ProcessTextSection(SyntaxTree syntaxTree, int unprocessedTextEnd)
         {
             var span = TextSpan.FromBounds(_unprocessedTextStart, unprocessedTextEnd);
 
@@ -130,7 +127,7 @@ namespace InfiniteLoathing.Snakeskin
                 return;
             }
 
-            foreach (var textSection in _templateScope.ReplacementScope.Split(_sourceText.ToString(span)))
+            foreach (var textSection in _templateScope.ReplacementScope.Split(syntaxTree.GetText().ToString(span)))
             {
                 if (_templateScope.ReplacementScope.TryGetReplaceNode(textSection, out var valueNode))
                 {
@@ -153,6 +150,6 @@ namespace InfiniteLoathing.Snakeskin
         protected abstract void HandleDiagnostic(ITemplateError error);
 
         private TextSpan GetLineSpan(DirectiveTriviaSyntax node) =>
-            _sourceText.Lines.Single(a => a.Span.Contains(node.Span)).SpanIncludingLineBreak;
+            node.SyntaxTree.GetText().Lines.Single(a => a.Span.Contains(node.Span)).SpanIncludingLineBreak;
     }
 }
