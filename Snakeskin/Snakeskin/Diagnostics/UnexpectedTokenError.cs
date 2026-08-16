@@ -1,5 +1,4 @@
-﻿using System;
-using InfiniteLoathing.Snakeskin.Tokens;
+﻿using InfiniteLoathing.Snakeskin.Tokens;
 using Microsoft.CodeAnalysis;
 
 namespace InfiniteLoathing.Snakeskin.Diagnostics

@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using InfiniteLoathing.Snakeskin.Diagnostics;
-using InfiniteLoathing.Snakeskin.Exceptions;
-using InfiniteLoathing.Snakeskin.Syntax;
+﻿using InfiniteLoathing.Snakeskin.Diagnostics;
 using InfiniteLoathing.Snakeskin.Templating;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.CodeAnalysis.Text;
 
 namespace InfiniteLoathing.Snakeskin
 {

@@ -1,7 +1,4 @@
-﻿using System.Collections.Immutable;
-using Microsoft.CodeAnalysis;
-
-namespace InfiniteLoathing.Snakeskin.Syntax
+﻿namespace InfiniteLoathing.Snakeskin.Syntax
 {
     internal class ForEachDirectiveSyntax : DirectiveSyntax
     {

@@ -1,6 +1,5 @@
 ﻿using System;
 using InfiniteLoathing.Snakeskin.Extensions;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
 namespace InfiniteLoathing.Snakeskin.Tokens
