@@ -7,7 +7,7 @@ namespace InfiniteLoathing.Snakeskin.Templating
         private readonly ValueNode _original;
         
         public DerivedObjectValueNode(string identifier, ValueNode original)
-            : base(identifier, original.IsArray, true)
+            : base(identifier, original.Location, original.IsArray, true)
         {
             _original = original;
         }
@@ -24,6 +24,7 @@ namespace InfiniteLoathing.Snakeskin.Templating
                 property = new ValueNode(
                     Identifier,
                     originalProperty.Identifier,
+                    originalProperty.Location,
                     originalProperty.IsArray,
                     originalProperty.IsObject);
                 Properties.Add(identifier, property);
@@ -40,6 +41,7 @@ namespace InfiniteLoathing.Snakeskin.Templating
             var property = new ValueNode(
                 Identifier,
                 valueSyntax.Identifier,
+                valueSyntax.Location,
                 valueSyntax.IsArray,
                 valueSyntax.IsObject);
             

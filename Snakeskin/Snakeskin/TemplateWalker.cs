@@ -36,8 +36,7 @@ namespace InfiniteLoathing.Snakeskin
             {
                 throw new InvalidTemplateException("TemplateWalker completed with open region");
             }
-            
-            var span = TextSpan.FromBounds(_unprocessedTextStart, _sourceText.Length);
+            var span = TextSpan.FromBounds(_unprocessedTextStart, node.SyntaxTree.Length);
             
             if (span.Length != 0)
             {
@@ -144,7 +143,7 @@ namespace InfiniteLoathing.Snakeskin
         {
         }
 
-        protected abstract void HandleDiagnostic(ITemplateDiagnostic diagnostic, Location location);
+        protected abstract void HandleDiagnostic(ITemplateError error);
 
         private TextSpan GetLineSpan(DirectiveTriviaSyntax node) =>
             _sourceText.Lines.Single(a => a.Span.Contains(node.Span)).SpanIncludingLineBreak;

@@ -12,7 +12,7 @@ namespace InfiniteLoathing.Snakeskin
 {
     internal class AnalyzerTemplateWalker : TemplateWalker
     {
-        private AdditionalFileAnalysisContext _context;
+        private readonly AdditionalFileAnalysisContext _context;
         
         public AnalyzerTemplateWalker(AdditionalFileAnalysisContext context, SourceText sourceText) : base(sourceText)
         {
@@ -24,8 +24,9 @@ namespace InfiniteLoathing.Snakeskin
             
         }
 
-        // todo: make this have a more specific description
-        protected override void HandleDiagnostic(ITemplateDiagnostic diagnosticKind, Location _) =>
-            throw new InvalidTemplateException(diagnosticKind.ToString());
+        protected override void HandleDiagnostic(ITemplateError errorKind)
+        {
+            _context.ReportDiagnostic(errorKind.CreateDiagnostic());
+        }
     }
 }

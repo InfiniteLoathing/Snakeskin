@@ -3,7 +3,6 @@ using System.Collections.Immutable;
 using InfiniteLoathing.Snakeskin.Diagnostics;
 using InfiniteLoathing.Snakeskin.Extensions;
 using InfiniteLoathing.Snakeskin.Tokens;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
 namespace InfiniteLoathing.Snakeskin.Syntax
@@ -11,13 +10,13 @@ namespace InfiniteLoathing.Snakeskin.Syntax
     internal ref struct DirectiveParser
     {
         private RegionLexer _lexer;
-        private readonly Action<ITemplateDiagnostic, Location> _handleDiagnostic;
+        private readonly Action<ITemplateError> _handleDiagnostic;
         private readonly SyntaxTreeLocator _locator;
         
         public DirectiveParser(
             ReadOnlySpan<char> text,
             SyntaxTreeLocator locator,
-            Action<ITemplateDiagnostic, Location> handleDiagnostic)
+            Action<ITemplateError> handleDiagnostic)
         {
             _lexer = new RegionLexer(text);
             _locator = locator;
@@ -41,14 +40,14 @@ namespace InfiniteLoathing.Snakeskin.Syntax
             {
                 return true;
             }
-            _handleDiagnostic(new UnexpectedTokenDiagnostic(token.Kind, kind), _locator.Locate(token.TextSpan));
+            _handleDiagnostic(new UnexpectedTokenError(token.Kind, _locator.Locate(token.TextSpan)));
             return false;
         }
 
         public DirectiveSyntaxKind ParseDirectiveKind()
         {
             if (!this.Accept(TokenKind.At, out _)
-                || !this.Expect(TokenKind.Identifier, out var identifier))
+                || !this.Expect(TokenKind.String, out var identifier))
             {
                 return DirectiveSyntaxKind.None;
             }
@@ -69,8 +68,8 @@ namespace InfiniteLoathing.Snakeskin.Syntax
             }
 
             _handleDiagnostic(
-                new InvalidDirectiveDiagnostic(identifier.CharSpan.ToString()),
-                _locator.Locate(identifier.TextSpan));
+                new InvalidDirectiveError(identifier.CharSpan.ToString(), _locator.Locate(identifier.TextSpan)));
+            
             return DirectiveSyntaxKind.Invalid;
         }
 
@@ -78,7 +77,9 @@ namespace InfiniteLoathing.Snakeskin.Syntax
         {
             if (_lexer.Current.Kind == TokenKind.End)
             {
-                _handleDiagnostic(new ExpectedValueSyntaxDiagnostic(), _locator.Locate(_lexer.Current.TextSpan));
+                _handleDiagnostic(
+                    new ExpectedArgumentsError(Keywords.Replace, _locator.Locate(_lexer.Current.TextSpan)));
+                
                 return new ReplaceDirectiveSyntax(ImmutableArray<ValueSyntax>.Empty);
             }
             var builder = ImmutableArray.CreateBuilder<ValueSyntax>();
@@ -131,7 +132,7 @@ namespace InfiniteLoathing.Snakeskin.Syntax
             var start = _lexer.Position;
             var isObject = this.Accept(TokenKind.Pound, out _);
 
-            if (!this.Expect(TokenKind.Identifier, out var identifier))
+            if (!this.Expect(TokenKind.String, out var identifier))
             {
                 value = null;
                 return false;
@@ -143,7 +144,7 @@ namespace InfiniteLoathing.Snakeskin.Syntax
             {
                 isObject = false;
                 parentObject = identifier;
-                if (!this.Expect(TokenKind.Identifier, out identifier))
+                if (!this.Expect(TokenKind.String, out identifier))
                 {
                     value = null;
                     return false;

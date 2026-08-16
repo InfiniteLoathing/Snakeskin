@@ -1,14 +1,18 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 using InfiniteLoathing.Snakeskin.Syntax;
+using Microsoft.CodeAnalysis;
 
 namespace InfiniteLoathing.Snakeskin.Templating
 {
     internal class ValueNode : ITemplateNode
     {
+        
         public readonly string ParentIdentifier;
         
         public readonly string Identifier;
+
+        public readonly Location Location;
 
         public readonly bool IsArray;
 
@@ -16,19 +20,30 @@ namespace InfiniteLoathing.Snakeskin.Templating
 
         protected readonly Dictionary<string, ValueNode> Properties;
 
-        public ValueNode(string identifier, bool isArray = false, bool isObject = false)
+        public ValueNode(
+            string identifier,
+            Location location,
+            bool isArray = false,
+            bool isObject = false)
         {
             ParentIdentifier = null;
             Identifier = identifier;
+            Location = location;
             IsArray = isArray;
             IsObject = isObject;
             Properties = isObject ? new Dictionary<string, ValueNode>() : null;
         }
 
-        public ValueNode(string parentIdentifier, string identifier, bool isArray = false, bool isObject = false)
+        public ValueNode(
+            string parentIdentifier,
+            string identifier,
+            Location location,
+            bool isArray = false,
+            bool isObject = false)
         {
             ParentIdentifier = parentIdentifier;
             Identifier = identifier;
+            Location = location;
             IsArray = isArray;
             IsObject = isObject;
             Properties = isObject ? new Dictionary<string, ValueNode>() : null;
@@ -45,6 +60,7 @@ namespace InfiniteLoathing.Snakeskin.Templating
             var property = new ValueNode(
                 Identifier,
                 valueSyntax.Identifier,
+                valueSyntax.Location,
                 valueSyntax.IsArray,
                 valueSyntax.IsObject);
             

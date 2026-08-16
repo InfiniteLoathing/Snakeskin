@@ -10,7 +10,7 @@
         OpenBracket,
         Brackets,
         In,
-        Identifier,
+        String,
         QuotedString,
         OpenQuotedString,
         Invalid,

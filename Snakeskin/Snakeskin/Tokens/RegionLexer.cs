@@ -159,7 +159,7 @@ namespace InfiniteLoathing.Snakeskin.Tokens
                 return;
             }
             
-            this.Current = CreateToken(TokenKind.Identifier, span, start, length);
+            this.Current = CreateToken(TokenKind.String, span, start, length);
         }
 
         private static Token CreateToken(TokenKind kind, ReadOnlySpan<char> slice, int start, int length) =>

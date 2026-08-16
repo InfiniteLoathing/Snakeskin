@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Text.RegularExpressions;
 using InfiniteLoathing.Snakeskin.Diagnostics;
 using InfiniteLoathing.Snakeskin.Syntax;
 using Microsoft.CodeAnalysis;
@@ -13,11 +14,11 @@ namespace InfiniteLoathing.Snakeskin.Templating
     {
         private readonly Dictionary<string, ValueNode> _values = new Dictionary<string, ValueNode>();
         private readonly Stack<DirectiveScope> _directiveScopes = new Stack<DirectiveScope>();
-        private readonly Action<ITemplateDiagnostic, Location> _handleDiagnostic;
+        private readonly Action<ITemplateError> _handleDiagnostic;
 
         private readonly DirectiveScope _emptyScope = new DirectiveScope();
 
-        public TemplateScope(Action<ITemplateDiagnostic, Location> handleDiagnostic)
+        public TemplateScope(Action<ITemplateError> handleDiagnostic)
         {
             _handleDiagnostic = handleDiagnostic;
         }
@@ -33,7 +34,7 @@ namespace InfiniteLoathing.Snakeskin.Templating
                 if (value.IsObject || value.IsArray)
                 {
                     _handleDiagnostic(
-                        new InvalidValueTypeDiagnostic(Keywords.Remove, value.IsObject, value.IsArray), value.Location);
+                        new InvalidArgumentError(Keywords.Remove, value.IsObject, value.IsArray, value.Location));
                     continue;
                 }
 
@@ -87,35 +88,45 @@ namespace InfiniteLoathing.Snakeskin.Templating
             // todo: Create regex pattern of newReplacements keys
         }
 
-        private bool Require(ValueSyntax valueSyntax, out ValueNode value)
+        private bool Require(ValueSyntax valueSyntax, out ValueNode node)
         {
             if (valueSyntax.Parent != null)
             {
-                return this.RequireParentProperty(valueSyntax, out value);
+                return this.RequireParentProperty(valueSyntax, out node);
             }
             
             foreach (var directiveScope in _directiveScopes)
             {
-                if (!directiveScope.Values.TryGetValue(valueSyntax.Identifier, out value))
+                if (!directiveScope.Values.TryGetValue(valueSyntax.Identifier, out node))
                 {
                     continue;
                 }
 
-                var matches = value.TypeMatches(valueSyntax);
+                var matches = node.TypeMatches(valueSyntax);
                 if (!matches)
                 {
-                    _handleDiagnostic(new ExistingValueDifferentTypeDiagnostic(), valueSyntax.Location);
+                    _handleDiagnostic(new ValueTypeCollisionError(valueSyntax, node));
                 }
                 return matches;
             }
             
-            if(_values.TryGetValue(valueSyntax.Identifier, out value))
+            if(_values.TryGetValue(valueSyntax.Identifier, out node))
             {
-                return value.TypeMatches(valueSyntax);
+                var matches = node.TypeMatches(valueSyntax);
+                if (!matches)
+                {
+                    _handleDiagnostic(new ValueTypeCollisionError(valueSyntax, node));
+                }
+                return matches;
             }
             
-            value = new ValueNode(valueSyntax.Identifier, valueSyntax.IsArray, valueSyntax.IsObject);
-            _values.Add(value.Identifier, value);           
+            node = new ValueNode(
+                identifier: valueSyntax.Identifier,
+                location: valueSyntax.Location,
+                isArray: valueSyntax.IsArray,
+                isObject: valueSyntax.IsObject);
+            
+            _values.Add(node.Identifier, node);           
             return true;
         }
 
@@ -123,18 +134,9 @@ namespace InfiniteLoathing.Snakeskin.Templating
         {
             if (this.RequireParent(valueSyntax.Parent, out var parent))
             {
-                if (this.RequireProperty(valueSyntax, parent, out node))
-                {
-                    var matches = node.TypeMatches(valueSyntax);
-                    if (!matches)
-                    {
-                        _handleDiagnostic(new ExistingValueDifferentTypeDiagnostic(), valueSyntax.Location);
-                    }
-                    return matches;
-                }
+                return this.RequireProperty(valueSyntax, parent, out node);
             }
 
-            _handleDiagnostic(new ExistingValueDifferentTypeDiagnostic(), valueSyntax.Parent.Location);
             node = null;
             return false;
         }
@@ -151,7 +153,7 @@ namespace InfiniteLoathing.Snakeskin.Templating
                 var matches = parentNode.IsObject && !parentNode.IsArray;
                 if (!matches)
                 {
-                    _handleDiagnostic(new ExistingValueDifferentTypeDiagnostic(), valueParentSyntax.Location);
+                    _handleDiagnostic(new ValueParentTypeCollisionError(valueParentSyntax, parentNode));
                 }
                 return matches;
             }
@@ -161,32 +163,33 @@ namespace InfiniteLoathing.Snakeskin.Templating
                 var matches = parentNode.IsObject && !parentNode.IsArray;
                 if (!matches)
                 {
-                    _handleDiagnostic(new ExistingValueDifferentTypeDiagnostic(), valueParentSyntax.Location);
+                    _handleDiagnostic(new ValueParentTypeCollisionError(valueParentSyntax, parentNode));
                 }
                 return matches;
             }
 
             parentNode = new ValueNode(
                 identifier: valueParentSyntax.Identifier,
+                location: valueParentSyntax.Location,
                 isObject: true);
             _values.Add(parentNode.Identifier, parentNode);
             
             return true;
         }
 
-        private bool RequireProperty(ValueSyntax valueSyntax, ValueNode parent, out ValueNode identifierMatch)
+        private bool RequireProperty(ValueSyntax valueSyntax, ValueNode parent, out ValueNode propertyNode)
         {
-            if (parent.TryGetProperty(valueSyntax.Identifier, out identifierMatch))
+            if (parent.TryGetProperty(valueSyntax.Identifier, out propertyNode))
             {
-                var matches = identifierMatch.TypeMatches(valueSyntax);
+                var matches = propertyNode.TypeMatches(valueSyntax);
                 if (!matches)
                 {
-                    _handleDiagnostic(new ExistingValueDifferentTypeDiagnostic(), valueSyntax.Location);
+                    _handleDiagnostic(new ValuePropertyTypeCollisionError(valueSyntax, propertyNode));
                 }
                 return matches;
             }
 
-            identifierMatch = parent.AddProperty(valueSyntax);
+            propertyNode = parent.AddProperty(valueSyntax);
             return true;
         }
     }
