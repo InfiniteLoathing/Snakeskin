@@ -19,7 +19,7 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
         
         public Diagnostic CreateDiagnostic()
         {
-            var nodeDisplayName = ValueDisplayNames.Get(_node.IsObject, _node.IsArray);
+            var nodeDisplayName = ValueTypeDisplayNames.Get(_node.IsObject, _node.IsArray);
 
             return Diagnostic.Create(
                 descriptor: DiagnosticDescriptors.ValueTypeMismatch,

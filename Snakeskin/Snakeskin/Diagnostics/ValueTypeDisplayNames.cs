@@ -1,6 +1,6 @@
 ﻿namespace InfiniteLoathing.Snakeskin.Diagnostics
 {
-    internal static class ValueDisplayNames
+    internal static class ValueTypeDisplayNames
     {
         private const string StringName = "String";
         private const string ObjectName = "Object";

@@ -8,25 +8,27 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
         private const string Category = "Templating";
         
         #if DEBUG
-        private const DiagnosticSeverity DefaultSeverity = DiagnosticSeverity.Warning;
+        private const DiagnosticSeverity InfoSeverity = DiagnosticSeverity.Warning;
+        private const DiagnosticSeverity ErrorSeverity = DiagnosticSeverity.Warning;
         #else
-        private const DiagnosticSeverity DefaultSeverity = DiagnosticSeverity.Error;
+        private const DiagnosticSeverity InfoSeverity = DiagnosticSeverity.Info;
+        private const DiagnosticSeverity ErrorSeverity = DiagnosticSeverity.Error;
         #endif
 
         public static readonly DiagnosticDescriptor ValueReplacement = new DiagnosticDescriptor(
             id: "SNKS000",
             title: "Value Replacement",
-            messageFormat: "Value Replacement: $0",
+            messageFormat: "Value Replacement: {0}",
             category: Category,
-            defaultSeverity: DiagnosticSeverity.Info,
+            defaultSeverity: InfoSeverity,
             isEnabledByDefault: true);
 
         public static readonly DiagnosticDescriptor InvalidDirective = new DiagnosticDescriptor(
             id: "SNKS001",
             title: "Invalid Directive",
-            messageFormat: "Invalid directive name: $0",
+            messageFormat: "Invalid directive name: {0}",
             category: Category,
-            defaultSeverity: DiagnosticSeverity.Error,
+            defaultSeverity: ErrorSeverity,
             isEnabledByDefault: true);
 
         public static readonly DiagnosticDescriptor UnexpectedToken = new DiagnosticDescriptor(
@@ -34,7 +36,7 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
             title: "Unexpected Token",
             messageFormat: "Unexpected token: {0}",
             category: Category,
-            defaultSeverity: DefaultSeverity,
+            defaultSeverity: ErrorSeverity,
             isEnabledByDefault: true);
 
         public static readonly DiagnosticDescriptor ExpectedArguments = new DiagnosticDescriptor(
@@ -42,7 +44,7 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
             title: "Expected Arguments",
             messageFormat: "{0} directive requires arguments",
             category: Category,
-            defaultSeverity: DefaultSeverity,
+            defaultSeverity: ErrorSeverity,
             isEnabledByDefault: true);
 
         public static readonly DiagnosticDescriptor InvalidArgument = new DiagnosticDescriptor(
@@ -50,7 +52,7 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
             title: "Invalid Argument",
             messageFormat: "{0} directive does not accept arguments of type {1}",
             category: Category,
-            defaultSeverity: DefaultSeverity,
+            defaultSeverity: ErrorSeverity,
             isEnabledByDefault: true);
 
         public static readonly DiagnosticDescriptor ValueTypeMismatch = new DiagnosticDescriptor(
@@ -58,7 +60,7 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
             title: "Value type mismatch",
             messageFormat: "Value \"{0}\" cannot be declared as {1} because it has already been declared with type {2}",
             category: Category,
-            defaultSeverity: DefaultSeverity,
+            defaultSeverity: ErrorSeverity,
             isEnabledByDefault: true);
 
         public static readonly DiagnosticDescriptor ValueParentTypeCollision = new DiagnosticDescriptor(
@@ -67,7 +69,7 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
             messageFormat:
             "Value \"{0}\" cannot be accessed as an object because it has already been declared with type {1}",
             category: Category,
-            defaultSeverity: DefaultSeverity,
+            defaultSeverity: ErrorSeverity,
             isEnabledByDefault: true);
 
         public static readonly DiagnosticDescriptor ValuePropertyTypeCollision = new DiagnosticDescriptor(
@@ -76,7 +78,7 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
             messageFormat:
             "Value property \"{0}.{1}\" cannot be declared as {2} because it has already been declared with type {3}",
             category: Category,
-            defaultSeverity: DefaultSeverity,
+            defaultSeverity: ErrorSeverity,
             isEnabledByDefault: true);
 
         public static readonly ImmutableArray<DiagnosticDescriptor> All = ImmutableArray.Create(

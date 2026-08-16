@@ -69,7 +69,7 @@ namespace InfiniteLoathing.Snakeskin.Templating
             return property;
         }
 
-        public virtual string ToDisplayName() => ParentIdentifier is null
+        public virtual string GetIdentifierName() => ParentIdentifier is null
             ? Identifier
             : $"{ParentIdentifier}.{Identifier}";
 

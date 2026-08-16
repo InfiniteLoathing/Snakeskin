@@ -133,9 +133,6 @@ namespace InfiniteLoathing.Snakeskin
                 return;
             }
 
-            var stts = sourceText.ToString(span);
-            var test = _templateScope.ReplacementScope.Split(stts);
-
             foreach (var textSection in _templateScope.ReplacementScope.Split(sourceText.ToString(span)))
             {
                 if (_templateScope.ReplacementScope.TryGetReplaceNode(textSection, out var valueNode))

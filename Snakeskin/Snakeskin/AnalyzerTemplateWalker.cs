@@ -24,7 +24,7 @@ namespace InfiniteLoathing.Snakeskin
             _context.ReportDiagnostic(Diagnostic.Create(
                 descriptor: DiagnosticDescriptors.ValueReplacement,
                 location: _locator.Locate(textSpan),
-                messageArgs: node.ToDisplayName()));
+                messageArgs: node.GetIdentifierName()));
         }
 
         public override void Handle(ITemplateDiagnostic diagnosticKind) =>
