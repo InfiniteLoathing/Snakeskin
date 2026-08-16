@@ -42,8 +42,11 @@ namespace InfiniteLoathing.Snakeskin
         
         protected override void ProcessTextNode(TextNode node) => _hierarchy.Peek().Children.Add(node);
 
-        public override void Handle(ITemplateDiagnostic _) =>
+        public override void Handle(ITemplateDiagnostic _)
+        {
+            var test = _.CreateDiagnostic();
             throw new InvalidTemplateException(
                 "Template generation failed. Check analyzer template walker for details.");
+        }
     }
 }

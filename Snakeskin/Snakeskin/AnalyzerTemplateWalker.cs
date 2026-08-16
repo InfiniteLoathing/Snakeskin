@@ -18,10 +18,7 @@ namespace InfiniteLoathing.Snakeskin
             
         }
 
-        public override void Handle(ITemplateDiagnostic diagnosticKind)
-        {
-            var test = diagnosticKind.CreateDiagnostic();
-            _context.ReportDiagnostic(test);
-        }
+        public override void Handle(ITemplateDiagnostic diagnosticKind) =>
+            _context.ReportDiagnostic(diagnosticKind.CreateDiagnostic());
     }
 }
