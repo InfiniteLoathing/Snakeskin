@@ -5,22 +5,21 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using InfiniteLoathing.Snakeskin.Diagnostics;
 using InfiniteLoathing.Snakeskin.Syntax;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Text;
 
 namespace InfiniteLoathing.Snakeskin.Templating
 {
     internal class TemplateScope
     {
+        public ReplacementScope ReplacementScope { get; private set; }
         private readonly Dictionary<string, ValueNode> _values = new Dictionary<string, ValueNode>();
         private readonly Stack<DirectiveScope> _directiveScopes = new Stack<DirectiveScope>();
         private readonly Action<ITemplateError> _handleDiagnostic;
-
         private readonly DirectiveScope _emptyScope = new DirectiveScope();
 
         public TemplateScope(Action<ITemplateError> handleDiagnostic)
         {
             _handleDiagnostic = handleDiagnostic;
+            this.RecalculateReplacements();
         }
 
         public void AddDirectiveScope(DirectiveSyntax directiveSyntax) => _directiveScopes.Push(_emptyScope);
@@ -49,11 +48,39 @@ namespace InfiniteLoathing.Snakeskin.Templating
 
         public void AddDirectiveScope(ForEachDirectiveSyntax forEachDirectiveSyntax)
         {
-            // Array is array
-            // Iterator is not array
-            
-            // string iterator is a replacement
-            // iterator is always a scoped value
+            if (!forEachDirectiveSyntax.IsValid)
+            {
+                _directiveScopes.Push(_emptyScope);
+                return;
+            }
+
+            var iterator = forEachDirectiveSyntax.Iterator;
+            if (iterator.IsArray)
+            {
+                _handleDiagnostic(
+                    new InvalidArgumentError(Keywords.Remove, iterator.IsObject, iterator.IsArray, iterator.Location));
+                _directiveScopes.Push(_emptyScope);
+                return;
+            }
+
+            var array = forEachDirectiveSyntax.Array;
+            if (!array.IsArray)
+            {
+                _handleDiagnostic(
+                    new InvalidArgumentError(Keywords.Remove, array.IsObject, array.IsArray, array.Location));
+                _directiveScopes.Push(_emptyScope);
+                return;
+                
+            }
+
+            var iteratorNode = new ValueNode(iterator.Identifier, iterator.Location, false, iterator.IsObject);
+            var values = new Dictionary<string, ValueNode> { { iterator.Identifier, iteratorNode } }
+                .ToImmutableDictionary();
+            var replacements = iterator.IsObject
+                ? ImmutableDictionary<string, ValueNode>.Empty
+                : new Dictionary<string, ValueNode> { { iterator.Identifier, iteratorNode } }.ToImmutableDictionary();
+
+            this.PushScope(new DirectiveScope(values, replacements));
         }
 
         private void PushScope(DirectiveScope directiveScope)
@@ -64,12 +91,14 @@ namespace InfiniteLoathing.Snakeskin.Templating
                 this.RecalculateReplacements();
             }
         }
-        
 
-        public IEnumerable<ITemplateNode> ProcessTextSection(string templateText)
+        public void ExitScope()
         {
-            // todo: use regex property to split tempalteText
-            throw new NotImplementedException();
+            var exited = _directiveScopes.Pop();
+            if (exited.Replacements.Any())
+            {
+                this.RecalculateReplacements();
+            }
         }
 
         private void RecalculateReplacements()
@@ -84,8 +113,10 @@ namespace InfiniteLoathing.Snakeskin.Templating
                     newReplacements.Add(replacement.Key, replacement.Value);
                 }
             }
-            
-            // todo: Create regex pattern of newReplacements keys
+
+            this.ReplacementScope = new ReplacementScope(
+                expression: new Regex(string.Join("|", newReplacements.Keys.Select(Regex.Escape))),
+                replaceValues: newReplacements.ToImmutableDictionary());
         }
 
         private bool Require(ValueSyntax valueSyntax, out ValueNode node)

@@ -40,7 +40,9 @@ namespace InfiniteLoathing.Snakeskin
 
         protected override void ExitDirectiveRegion() => _hierarchy.Pop();
 
-        protected override void ProcessTemplateNode(ITemplateNode node) => _hierarchy.Peek().Children.Add(node);
+        protected override void ProcessValueNode(ValueNode node) => _hierarchy.Peek().Children.Add(node);
+        
+        protected override void ProcessTextNode(TextNode node) => _hierarchy.Peek().Children.Add(node);
 
         protected override void HandleDiagnostic(ITemplateError _) =>
             throw new InvalidTemplateException(

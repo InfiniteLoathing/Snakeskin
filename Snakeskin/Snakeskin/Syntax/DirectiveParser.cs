@@ -116,16 +116,17 @@ namespace InfiniteLoathing.Snakeskin.Syntax
 
         public RemoveDirectiveSyntax ParseRemove()
         {
-            // todo: this
-            throw new NotImplementedException();
+            this.Expect(TokenKind.End, out _);
+            return new RemoveDirectiveSyntax();
         }
 
         public ForEachDirectiveSyntax ParseForEach()
         {
-            // todo: this
-            throw new NotImplementedException();
+            this.TryParseValue(out var iterator);
+            this.Expect(TokenKind.In, out _);
+            this.TryParseValue(out var array);
+            return new ForEachDirectiveSyntax(iterator, array);
         }
-
 
         private bool TryParseValue(out ValueSyntax value)
         {

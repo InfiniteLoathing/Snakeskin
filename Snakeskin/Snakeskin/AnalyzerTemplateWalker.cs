@@ -19,7 +19,7 @@ namespace InfiniteLoathing.Snakeskin
             _context = context;
         }
 
-        protected override void ProcessTemplateNode(ITemplateNode node)
+        protected override void ProcessValueNode(ValueNode node)
         {
             
         }

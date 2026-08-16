@@ -36,15 +36,8 @@ namespace InfiniteLoathing.Snakeskin
             {
                 throw new InvalidTemplateException("TemplateWalker completed with open region");
             }
-            var span = TextSpan.FromBounds(_unprocessedTextStart, node.SyntaxTree.Length);
             
-            if (span.Length != 0)
-            {
-                foreach (var templateNode in _templateScope.ProcessTextSection(_sourceText.ToString(span)))
-                {
-                    this.ProcessTemplateNode(templateNode);
-                }
-            }
+            this.ProcessTextSection(node.SyntaxTree.Length);
         }
 
         public override void VisitRegionDirectiveTrivia(RegionDirectiveTriviaSyntax node)
@@ -70,18 +63,21 @@ namespace InfiniteLoathing.Snakeskin
                 case DirectiveSyntaxKind.Replace:
                     _regionIsDirective.Push(true);
                     var replaceSyntax = parser.ParseReplace();
+                    // todo: Consider wrapping this logic into EnterDirectiveRegion
                     _templateScope.AddDirectiveScope(replaceSyntax);
                     this.EnterDirectiveRegion(replaceSyntax);
                     break;
                 case DirectiveSyntaxKind.Remove:
                     _regionIsDirective.Push(true);
                     var removeSyntax = parser.ParseRemove();
+                    // todo: Consider wrapping this logic into EnterDirectiveRegion
                     _templateScope.AddDirectiveScope(removeSyntax);
                     this.EnterDirectiveRegion(removeSyntax);
                     break;
                 case DirectiveSyntaxKind.ForEach:
                     _regionIsDirective.Push(true);
                     var forEachSyntax = parser.ParseForEach();
+                    // todo: Consider wrapping this logic into EnterDirectiveRegion
                     _templateScope.AddDirectiveScope(forEachSyntax);
                     this.EnterDirectiveRegion(forEachSyntax);
                     break;
@@ -110,6 +106,8 @@ namespace InfiniteLoathing.Snakeskin
             var directiveLineSpan = this.GetLineSpan(node);
             this.ProcessTextSection(directiveLineSpan.Start);
             _unprocessedTextStart = directiveLineSpan.End;
+            // todo: Consider wrapping this logic into ExitDirectiveRegion
+            _templateScope.ExitScope();
             this.ExitDirectiveRegion();
         }
 
@@ -132,14 +130,23 @@ namespace InfiniteLoathing.Snakeskin
                 return;
             }
 
-            foreach (var templateNode in _templateScope.ProcessTextSection(_sourceText.ToString(span)))
+            foreach (var textSection in _templateScope.ReplacementScope.Split(_sourceText.ToString(span)))
             {
-                this.ProcessTemplateNode(templateNode);
+                if (_templateScope.ReplacementScope.TryGetReplaceNode(textSection, out var valueNode))
+                {
+                    this.ProcessValueNode(valueNode);
+                    continue;
+                }
+
+                this.ProcessTextNode(new TextNode(textSection));
             }
         }
-        
 
-        protected virtual void ProcessTemplateNode(ITemplateNode node)
+        protected virtual void ProcessValueNode(ValueNode node)
+        {
+        }
+
+        protected virtual void ProcessTextNode(TextNode node)
         {
         }
 

@@ -5,6 +5,8 @@ namespace InfiniteLoathing.Snakeskin.Syntax
 {
     internal class ForEachDirectiveSyntax : DirectiveSyntax
     {
+        public override bool IsValid => this.Iterator != null && this.Array != null;
+
         public override DirectiveSyntaxKind Kind => DirectiveSyntaxKind.ForEach;
 
         public ForEachDirectiveSyntax(ValueSyntax iterator, ValueSyntax array)

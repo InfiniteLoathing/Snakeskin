@@ -4,7 +4,6 @@ using Microsoft.CodeAnalysis;
 
 namespace InfiniteLoathing.Snakeskin.Diagnostics
 {
-    // todo: add info
     internal class ValueTypeCollisionError : ITemplateError
     {
         private readonly ValueSyntax _syntax;
