@@ -1,43 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using InfiniteLoathing.Snakeskin.Diagnostics;
-using InfiniteLoathing.Snakeskin.Exceptions;
-using InfiniteLoathing.Snakeskin.Syntax;
-using Microsoft.CodeAnalysis.Text;
+﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace InfiniteLoathing.Snakeskin.Templating
 {
-    internal class SemanticScope
+    internal class DirectiveScope
     {
-        public IReadOnlyDictionary<string, string> ReplacementValueMap => _replacementValueMap;
-        private Dictionary<string, string> _replacementValueMap;
-        private Action<ITemplateDiagnostic, TextSpan> _handleDiagnostic;
-        
-        public SemanticScope(Action<ITemplateDiagnostic, TextSpan> handleDiagnostic)
+        public DirectiveScope(
+            ImmutableDictionary<string, ValueNode> values = null,
+            ImmutableDictionary<string, ValueNode> replacements = null)
         {
-            _replacementValueMap = new Dictionary<string, string>();
-            _handleDiagnostic = handleDiagnostic;
+            this.Values = values ?? ImmutableDictionary<string, ValueNode>.Empty;
+            this.Replacements = replacements?? ImmutableDictionary<string, ValueNode>.Empty;
         }
 
-        public ParentNode ValidateAndAdd(DirectiveSyntax directiveSyntax)
-        {
-            switch (directiveSyntax)
-            {
-                case ReplaceDirectiveSyntax replaceDirectiveSyntax:
-                    return this.AddToScope(replaceDirectiveSyntax);
-                default:
-                    throw new InvalidTemplateException("Unsupported syntax type");
-            }
-        }
+        public ImmutableDictionary<string, ValueNode> Values { get; }
 
-        public IEnumerable<ITemplateNode> RenderTextSection(string templateText)
-        {
-            yield break;
-        }
-
-        private ParentNode AddToScope(ReplaceDirectiveSyntax replaceDirectiveSyntax)
-        {
-            throw new NotImplementedException();
-        }
+        public ImmutableDictionary<string, ValueNode> Replacements { get; }
     }
 }

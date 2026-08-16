@@ -1,25 +1,30 @@
-﻿namespace InfiniteLoathing.Snakeskin.Syntax
+﻿using Microsoft.CodeAnalysis;
+
+namespace InfiniteLoathing.Snakeskin.Syntax
 {
     internal class ValueSyntax
     {
-        public bool IsObject;
-        public string ParentObject;
-        public string Identifier;
-        public bool IsArray;
-        public string ReplacementText;
+        public readonly bool IsObject;
+        public readonly ValueParentSyntax Parent;
+        public readonly string Identifier;
+        public readonly bool IsArray;
+        public readonly string ReplacementText;
+        public readonly Location Location;
 
         public ValueSyntax(
             bool isObject,
-            string parentObject,
+            ValueParentSyntax parent,
             string identifier,
             bool isArray,
-            string replacementText)
+            string replacementText,
+            Location location)
         {
             IsObject = isObject;
-            ParentObject = parentObject;
+            Parent = parent;
             Identifier = identifier;
             IsArray = isArray;
-            ReplacementText = replacementText;
+            ReplacementText = replacementText ?? identifier;
+            Location = location;
         }
     }
 }

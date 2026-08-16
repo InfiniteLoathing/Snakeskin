@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using InfiniteLoathing.Snakeskin.Diagnostics;
 using InfiniteLoathing.Snakeskin.Extensions;
 using InfiniteLoathing.Snakeskin.Tokens;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
 namespace InfiniteLoathing.Snakeskin.Syntax
@@ -10,13 +11,16 @@ namespace InfiniteLoathing.Snakeskin.Syntax
     internal ref struct DirectiveParser
     {
         private RegionLexer _lexer;
-        private readonly Action<ITemplateDiagnostic, TextSpan> _handleDiagnostic;
+        private readonly Action<ITemplateDiagnostic, Location> _handleDiagnostic;
+        private readonly SyntaxTreeLocator _locator;
         
         public DirectiveParser(
             ReadOnlySpan<char> text,
-            Action<ITemplateDiagnostic, TextSpan> handleDiagnostic)
+            SyntaxTreeLocator locator,
+            Action<ITemplateDiagnostic, Location> handleDiagnostic)
         {
             _lexer = new RegionLexer(text);
+            _locator = locator;
             _handleDiagnostic = handleDiagnostic;
         }
 
@@ -37,55 +41,58 @@ namespace InfiniteLoathing.Snakeskin.Syntax
             {
                 return true;
             }
-            _handleDiagnostic(new UnexpectedTokenDiagnostic(token.Kind, kind), token.TextSpan);
+            _handleDiagnostic(new UnexpectedTokenDiagnostic(token.Kind, kind), _locator.Locate(token.TextSpan));
             return false;
         }
 
-        public bool TryParseDirective(out DirectiveSyntax syntax)
+        public DirectiveSyntaxKind ParseDirectiveKind()
         {
             if (!this.Accept(TokenKind.At, out _)
                 || !this.Expect(TokenKind.Identifier, out var identifier))
             {
-                syntax = null;
-                return false;
-            }
-
-            if (identifier.Slice.SequenceEqual(Keywords.Replace))
-            {
-                return this.TryParseReplace(out syntax);
-            }
-            else if (identifier.Slice.SequenceEqual(Keywords.Remove))
-            {
-
-            }
-            else if (identifier.Slice.SequenceEqual(Keywords.ForEach))
-            {
-                
-            }
-            else
-            {
-                _handleDiagnostic(new InvalidDirectiveDiagnostic(identifier.Slice.ToString()), _lexer.Current.TextSpan);
+                return DirectiveSyntaxKind.None;
             }
             
-            syntax = null;
-            return false;
+            if (identifier.CharSpan.SequenceEqual(Keywords.Replace))
+            {
+                return DirectiveSyntaxKind.Replace;
+            }
+
+            if (identifier.CharSpan.SequenceEqual(Keywords.Remove))
+            {
+                return DirectiveSyntaxKind.Remove;
+            }
+
+            if (identifier.CharSpan.SequenceEqual(Keywords.ForEach))
+            {
+                return DirectiveSyntaxKind.ForEach;
+            }
+
+            _handleDiagnostic(
+                new InvalidDirectiveDiagnostic(identifier.CharSpan.ToString()),
+                _locator.Locate(identifier.TextSpan));
+            return DirectiveSyntaxKind.Invalid;
         }
 
-        public bool TryParseReplace(out DirectiveSyntax replaceDirective)
+        public ReplaceDirectiveSyntax ParseReplace()
         {
-            if (_lexer.IsComplete)
+            if (_lexer.Current.Kind == TokenKind.End)
             {
-                _handleDiagnostic(new ExpectedValueDiagnostic(), _lexer.Current.TextSpan);
+                _handleDiagnostic(new ExpectedValueSyntaxDiagnostic(), _locator.Locate(_lexer.Current.TextSpan));
+                return new ReplaceDirectiveSyntax(ImmutableArray<ValueSyntax>.Empty);
             }
             var builder = ImmutableArray.CreateBuilder<ValueSyntax>();
 
-            if (!this.TryParseValue(out var first))
+            if (this.TryParseValue(out var first))
             {
-                replaceDirective = null;
-                return false;
+                builder.Add(first);
             }
-            builder.Add(first);
-            while (!_lexer.IsComplete)
+            else
+            {
+                _lexer.Next();
+            }
+
+            while (_lexer.Current.Kind != TokenKind.End)
             {
                 if (!this.Expect(TokenKind.Comma, out _))
                 {
@@ -103,12 +110,25 @@ namespace InfiniteLoathing.Snakeskin.Syntax
                 }
             }
 
-            replaceDirective = new ReplaceDirectiveSyntax(builder.ToImmutable());
-            return true;
+            return new ReplaceDirectiveSyntax(builder.ToImmutable());
         }
+
+        public RemoveDirectiveSyntax ParseRemove()
+        {
+            // todo: this
+            throw new NotImplementedException();
+        }
+
+        public ForEachDirectiveSyntax ParseForEach()
+        {
+            // todo: this
+            throw new NotImplementedException();
+        }
+
 
         private bool TryParseValue(out ValueSyntax value)
         {
+            var start = _lexer.Position;
             var isObject = this.Accept(TokenKind.Pound, out _);
 
             if (!this.Expect(TokenKind.Identifier, out var identifier))
@@ -133,8 +153,8 @@ namespace InfiniteLoathing.Snakeskin.Syntax
             var isArray = this.Accept(TokenKind.Brackets, out _);
 
             var hasReplacementText = this.Accept(TokenKind.Colon, out _);
-            Token replacementText = default;
-            if (hasReplacementText && !this.Expect(TokenKind.QuotedString, out replacementText))
+            Token quotedReplacementText = default;
+            if (hasReplacementText && !this.Expect(TokenKind.QuotedString, out quotedReplacementText))
             {
                 value = null;
                 return false;
@@ -142,10 +162,16 @@ namespace InfiniteLoathing.Snakeskin.Syntax
 
             value = new ValueSyntax(
                 isObject,
-                hasParentObject ? parentObject.Slice.ToString() : null,
-                identifier.Slice.ToString(),
+                hasParentObject
+                    ? new ValueParentSyntax(parentObject.CharSpan.ToString(), _locator.Locate(parentObject.TextSpan))
+                    : null,
+                identifier.CharSpan.ToString(),
                 isArray,
-                hasReplacementText ? replacementText.Slice.ToString() : null);
+                hasReplacementText
+                    ? quotedReplacementText.Slice(1, quotedReplacementText.CharSpan.Length - 2).ToString()
+                    : null,
+                location: _locator.Locate(TextSpan.FromBounds(start, _lexer.Position))
+                );
             return true;
         }
     }

@@ -1,7 +1,10 @@
-﻿namespace InfiniteLoathing.Snakeskin.Syntax
+﻿using Microsoft.CodeAnalysis;
+
+namespace InfiniteLoathing.Snakeskin.Syntax
 {
     internal abstract class DirectiveSyntax
     {
-        public abstract SyntaxKind Kind { get; }
+        
+        public abstract DirectiveSyntaxKind Kind { get; }
     }
 }

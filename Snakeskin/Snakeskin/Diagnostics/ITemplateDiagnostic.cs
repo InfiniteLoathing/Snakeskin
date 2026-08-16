@@ -1,6 +1,6 @@
 ﻿namespace InfiniteLoathing.Snakeskin.Diagnostics
 {
-    // todo: ad relevant info
+    // todo: add relevant info
     internal interface ITemplateDiagnostic
     {
         

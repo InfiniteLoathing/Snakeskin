@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
 namespace InfiniteLoathing.Snakeskin.Tokens
@@ -9,13 +10,15 @@ namespace InfiniteLoathing.Snakeskin.Tokens
 
         public readonly TextSpan TextSpan;
 
-        public readonly ReadOnlySpan<char> Slice;
+        public readonly ReadOnlySpan<char> CharSpan;
+
+        public ReadOnlySpan<char> Slice(int start, int length) => CharSpan.Slice(start, length);
         
-        public Token(TokenKind kind, TextSpan textSpan, ReadOnlySpan<char> slice)
+        public Token(TokenKind kind, TextSpan textSpan, ReadOnlySpan<char> charSpan)
         {
             Kind = kind;
             TextSpan = textSpan;
-            Slice = slice;
+            CharSpan = charSpan;
         }
     }
 }

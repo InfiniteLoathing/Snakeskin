@@ -2,7 +2,7 @@
 
 namespace InfiniteLoathing.Snakeskin.Templating
 {
-    internal class RemoveDirective : ParentNode
+    internal class RemoveNode : ParentNode
     {
         public override StringBuilder Render(StringBuilder builder) => builder;
     }

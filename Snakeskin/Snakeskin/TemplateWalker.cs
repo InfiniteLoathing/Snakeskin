@@ -14,19 +14,38 @@ namespace InfiniteLoathing.Snakeskin
 {
     internal abstract class TemplateWalker : CSharpSyntaxWalker
     {
-        // #todo: move these to a template context class
-        protected readonly SourceText SourceText;
-        private readonly SemanticScope _semanticScope;
+        private readonly SourceText _sourceText;
+        private readonly TemplateScope _templateScope;
         private readonly Stack<bool> _regionIsDirective = new Stack<bool>();
         
         private int _unprocessedTextStart;
 
-        protected TemplateWalker(SourceText sourceText, int unprocessedTextStart)
+        protected TemplateWalker(SourceText sourceText)
             : base(SyntaxWalkerDepth.StructuredTrivia)
         {
-            SourceText = sourceText;
-            _semanticScope = new SemanticScope(this.HandleDiagnostic);
-            _unprocessedTextStart = unprocessedTextStart;
+            _sourceText = sourceText;
+            _templateScope = new TemplateScope(this.HandleDiagnostic);
+            _unprocessedTextStart = 0;
+        }
+
+        public override void VisitCompilationUnit(CompilationUnitSyntax node)
+        {
+            base.VisitCompilationUnit(node);
+
+            if (_regionIsDirective.Count != 0)
+            {
+                throw new InvalidTemplateException("TemplateWalker completed with open region");
+            }
+            
+            var span = TextSpan.FromBounds(_unprocessedTextStart, _sourceText.Length);
+            
+            if (span.Length != 0)
+            {
+                foreach (var templateNode in _templateScope.ProcessTextSection(_sourceText.ToString(span)))
+                {
+                    this.ProcessTemplateNode(templateNode);
+                }
+            }
         }
 
         public override void VisitRegionDirectiveTrivia(RegionDirectiveTriviaSyntax node)
@@ -38,22 +57,46 @@ namespace InfiniteLoathing.Snakeskin
                 _regionIsDirective.Push(false);
                 return;
             }
-            
+
             var parser = new DirectiveParser(
                 text: regionTextTrivia.ToFullString().AsSpan(),
+                locator: new SyntaxTreeLocator(
+                    syntaxTree: node.SyntaxTree,
+                    offset: regionTextTrivia.First().GetLocation().SourceSpan.Start),
                 handleDiagnostic: this.HandleDiagnostic);
 
-            if (!parser.TryParseDirective(out var directiveSyntax))
+            // low: Reorganize this
+            switch (parser.ParseDirectiveKind())
             {
-                _regionIsDirective.Push(false);
-                return;
+                case DirectiveSyntaxKind.Replace:
+                    _regionIsDirective.Push(true);
+                    var replaceSyntax = parser.ParseReplace();
+                    _templateScope.AddDirectiveScope(replaceSyntax);
+                    this.EnterDirectiveRegion(replaceSyntax);
+                    break;
+                case DirectiveSyntaxKind.Remove:
+                    _regionIsDirective.Push(true);
+                    var removeSyntax = parser.ParseRemove();
+                    _templateScope.AddDirectiveScope(removeSyntax);
+                    this.EnterDirectiveRegion(removeSyntax);
+                    break;
+                case DirectiveSyntaxKind.ForEach:
+                    _regionIsDirective.Push(true);
+                    var forEachSyntax = parser.ParseForEach();
+                    _templateScope.AddDirectiveScope(forEachSyntax);
+                    this.EnterDirectiveRegion(forEachSyntax);
+                    break;
+                case DirectiveSyntaxKind.None:
+                case DirectiveSyntaxKind.Invalid:
+                    _regionIsDirective.Push(false);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
             
             var directiveLineSpan = this.GetLineSpan(node);
             this.ProcessTextSection(directiveLineSpan.Start);
             _unprocessedTextStart = directiveLineSpan.End;
-            _regionIsDirective.Push(true);
-            this.EnterDirectiveRegion(_semanticScope.ValidateAndAdd(directiveSyntax));
         }
 
         public override void VisitEndRegionDirectiveTrivia(EndRegionDirectiveTriviaSyntax node)
@@ -71,7 +114,7 @@ namespace InfiniteLoathing.Snakeskin
             this.ExitDirectiveRegion();
         }
 
-        protected virtual void EnterDirectiveRegion(ParentNode parentNode)
+        protected virtual void EnterDirectiveRegion(DirectiveSyntax directiveSyntax)
         {
             
         }
@@ -90,7 +133,7 @@ namespace InfiniteLoathing.Snakeskin
                 return;
             }
 
-            foreach (var templateNode in _semanticScope.RenderTextSection(SourceText.ToString(span)))
+            foreach (var templateNode in _templateScope.ProcessTextSection(_sourceText.ToString(span)))
             {
                 this.ProcessTemplateNode(templateNode);
             }
@@ -101,27 +144,9 @@ namespace InfiniteLoathing.Snakeskin
         {
         }
 
-        protected abstract void HandleDiagnostic(ITemplateDiagnostic diagnosticKind, TextSpan span);
-
-        protected void Complete()
-        {
-            if (_regionIsDirective.Count != 0)
-            {
-                throw new InvalidTemplateException("TemplateWalker completed with open region");
-            }
-            
-            var span = TextSpan.FromBounds(_unprocessedTextStart, SourceText.Length);
-
-            if (span.Length != 0)
-            {
-                foreach (var templateNode in _semanticScope.RenderTextSection(SourceText.ToString(span)))
-                {
-                    this.ProcessTemplateNode(templateNode);
-                }
-            }
-        }
+        protected abstract void HandleDiagnostic(ITemplateDiagnostic diagnostic, Location location);
 
         private TextSpan GetLineSpan(DirectiveTriviaSyntax node) =>
-            SourceText.Lines.Single(a => a.Span.Contains(node.Span)).SpanIncludingLineBreak;
+            _sourceText.Lines.Single(a => a.Span.Contains(node.Span)).SpanIncludingLineBreak;
     }
 }

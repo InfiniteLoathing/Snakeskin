@@ -3,7 +3,7 @@ using System.Text;
 
 namespace InfiniteLoathing.Snakeskin.Templating
 {
-    // current: Figure out cleaner inheritance
+    // low: Figure out cleaner inheritance
     internal abstract class ParentNode : ITemplateNode
     {
         public virtual StringBuilder Render(StringBuilder builder)

@@ -1,5 +1,6 @@
 ﻿using System;
 using InfiniteLoathing.Snakeskin.Extensions;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
 namespace InfiniteLoathing.Snakeskin.Tokens
@@ -24,18 +25,18 @@ namespace InfiniteLoathing.Snakeskin.Tokens
         private const int BracketLength = 2;
 
         private readonly ReadOnlySpan<char> _text;
-        private int _position;
-
+        
+        public int Position { get; private set; }
         public Token Current { get; private set; }
 
-        private char Char => _text[_position];
+        private char Char => _text[this.Position];
 
-        public bool IsComplete => _position >= _text.Length;
+        private bool IsComplete => this.Position >= _text.Length;
 
         public RegionLexer(ReadOnlySpan<char> text)
         {
             _text = text;
-            _position = 0;
+            this.Position = 0;
             this.Current = default;
             this.SkipWhitespace();
             this.SetCurrent();
@@ -47,78 +48,14 @@ namespace InfiniteLoathing.Snakeskin.Tokens
             this.SetCurrent();
         }
 
-        private void SkipWhitespace()
-        {
-            while (!this.IsComplete && char.IsWhiteSpace(_text[_position]))
-            {
-                _position++;
-            }
-        }
-
-        private void SetCurrent()
-        {
-            if (this.IsComplete)
-            {
-                this.Current = this.CreateToken(TokenKind.End, _position, 0);
-                return;
-            }
-
-            switch (this.GetCurrentCharacterKind())
-            {
-                case CharacterKind.At:
-                    this.Current = this.CreateToken(TokenKind.At, _position, CharLength);
-                    _position += CharLength;
-                    break;
-                case CharacterKind.Pound:
-                    this.Current = this.CreateToken(TokenKind.Pound, _position, CharLength);
-                    _position += CharLength;
-                    break;
-                case CharacterKind.Dot:
-                    this.Current = this.CreateToken(TokenKind.Dot, _position, CharLength);
-                    _position += CharLength;
-                    break;
-                case CharacterKind.Colon:
-                    this.Current = this.CreateToken(TokenKind.Colon, _position, CharLength);
-                    _position += CharLength;
-                    break;
-                case CharacterKind.Comma:
-                    this.Current = this.CreateToken(TokenKind.Comma, _position, CharLength);
-                    _position += CharLength;
-                    break;
-                case CharacterKind.OpenBracket:
-                    if (this.TryPeek(out var peekChar) && peekChar == ']')
-                    {
-                        this.Current = this.CreateToken(TokenKind.Brackets, _position, BracketLength);
-                        _position += BracketLength;
-                        break;
-                    }
-                    this.Current = this.CreateToken(TokenKind.OpenBracket, _position, CharLength);
-                    _position += CharLength;
-                    break;
-                case CharacterKind.Word:
-                    this.TakeString();
-                    break;
-                case CharacterKind.Quote:
-                    this.TakeQuotedString();
-                    break;
-                case CharacterKind.Invalid:
-                    var start = _position;
-                    this.TakeUntilDelimiter();
-                    this.Current = this.CreateToken(TokenKind.Invalid, start, _position - start);
-                    break;
-            }
-        }
-
         private CharacterKind GetCurrentCharacterKind()
         {
             if (this.IsComplete)
             {
                 return CharacterKind.End;
             }
-
-            var c = _text[_position];
-
-            switch (c)
+            
+            switch (this.Char)
             {
                 case '@':
                     return CharacterKind.At;
@@ -144,48 +81,111 @@ namespace InfiniteLoathing.Snakeskin.Tokens
             return CharacterKind.Invalid;
         }
 
-        private bool TryPeek(out char peekChar)
+        private void SetCurrent()
         {
-            if (_position + 1 >= _text.Length)
+            switch (this.GetCurrentCharacterKind())
             {
-                peekChar = '\0';
-                return false;
+                case CharacterKind.At:
+                    this.Current = this.CreateToken(TokenKind.At, this.Position, CharLength);
+                    this.Position += CharLength;
+                    break;
+                case CharacterKind.Pound:
+                    this.Current = this.CreateToken(TokenKind.Pound, this.Position, CharLength);
+                    this.Position += CharLength;
+                    break;
+                case CharacterKind.Dot:
+                    this.Current = this.CreateToken(TokenKind.Dot, this.Position, CharLength);
+                    this.Position += CharLength;
+                    break;
+                case CharacterKind.Colon:
+                    this.Current = this.CreateToken(TokenKind.Colon, this.Position, CharLength);
+                    this.Position += CharLength;
+                    break;
+                case CharacterKind.Comma:
+                    this.Current = this.CreateToken(TokenKind.Comma, this.Position, CharLength);
+                    this.Position += CharLength;
+                    break;
+                case CharacterKind.OpenBracket:
+                    if (this.TryPeek(out var peekChar) && peekChar == ']')
+                    {
+                        this.Current = this.CreateToken(TokenKind.Brackets, this.Position, BracketLength);
+                        this.Position += BracketLength;
+                        break;
+                    }
+                    this.Current = this.CreateToken(TokenKind.OpenBracket, this.Position, CharLength);
+                    this.Position += CharLength;
+                    break;
+                case CharacterKind.Word:
+                    this.TakeString();
+                    break;
+                case CharacterKind.Quote:
+                    this.TakeQuotedString();
+                    break;
+                case CharacterKind.Invalid:
+                    var start = this.Position;
+                    this.TakeUntilDelimiter();
+                    this.Current = this.CreateToken(TokenKind.Invalid, start, this.Position - start);
+                    this.Position++;
+                    break;
+                case CharacterKind.End:
+                    this.Current = this.CreateToken(TokenKind.End, this.Position, 0);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
-
-            peekChar = _text[_position + 1];
-            return true;
         }
-
-        private Token CreateToken(TokenKind kind, int start, int length) =>
-            new Token(kind, new TextSpan(start, length), _text.Slice(start, length));
-
-        private Token CreateToken(TokenKind kind, TextSpan textSpan, ReadOnlySpan<char> slice) =>
-            new Token(kind, textSpan, slice);
 
         private void TakeQuotedString()
         {
-            var start = _position;
-            _position++;
+            var start = this.Position;
+            this.Position++;
+            // low: Allow escaping quotes?
             this.Current = this.TakeThrough('"')
-                ? this.CreateToken(TokenKind.QuotedString, start, _position - start)
-                : this.CreateToken(TokenKind.OpenQuotedString, start, _position - start);
+                ? this.CreateToken(TokenKind.QuotedString, start, this.Position - start)
+                : this.CreateToken(TokenKind.OpenQuotedString, start, this.Position - start);
         }
 
         private void TakeString()
         {
-            var start = _position;
+            var start = this.Position;
             this.TakeUntilNot(CharacterKind.Word);
-            var length = _position - start;
+            var length = this.Position - start;
 
             var span = _text.Slice(start, length);
 
             if (span.SequenceEqual(Keywords.In))
             {
-                this.Current = this.CreateToken(TokenKind.In, new TextSpan(start, length), span);
+                this.Current = CreateToken(TokenKind.In, span, start, length);
                 return;
             }
             
-            this.Current  = this.CreateToken(TokenKind.Identifier, new TextSpan(start, length), span);
+            this.Current = CreateToken(TokenKind.Identifier, span, start, length);
+        }
+
+        private static Token CreateToken(TokenKind kind, ReadOnlySpan<char> slice, int start, int length) =>
+            new Token(kind, new TextSpan(start, length), slice);
+
+        private Token CreateToken(TokenKind kind, int start, int length) =>
+            new Token(kind, new TextSpan(start, length), _text.Slice(start, length));
+
+        private bool TryPeek(out char peekChar)
+        {
+            if (this.Position + 1 >= _text.Length)
+            {
+                peekChar = '\0';
+                return false;
+            }
+
+            peekChar = _text[this.Position + 1];
+            return true;
+        }
+
+        private void SkipWhitespace()
+        {
+            while (!this.IsComplete && char.IsWhiteSpace(_text[this.Position]))
+            {
+                this.Position++;
+            }
         }
 
         private bool TakeThrough(char expected)
@@ -194,10 +194,11 @@ namespace InfiniteLoathing.Snakeskin.Tokens
             {
                 if (this.Char == expected)
                 {
-                    _position++;
+                    this.Position++;
                     return true;
                 }
-                _position++;
+
+                this.Position++;
             }
 
             return false;
@@ -211,7 +212,7 @@ namespace InfiniteLoathing.Snakeskin.Tokens
                 {
                     return true;
                 }
-                _position++;
+                this.Position++;
             }
 
             return false;
@@ -221,12 +222,11 @@ namespace InfiniteLoathing.Snakeskin.Tokens
         {
             while (!this.IsComplete)
             {
-                var @char = this.Char;
-                if (@char == ',' || char.IsWhiteSpace(@char))
+                if (this.Char != ',' || char.IsWhiteSpace(this.Char))
                 {
                     return true;
                 }
-                _position++;
+                this.Position++;
             }
 
             return false;

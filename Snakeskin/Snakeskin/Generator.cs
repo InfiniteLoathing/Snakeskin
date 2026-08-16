@@ -38,15 +38,14 @@ namespace InfiniteLoathing.Snakeskin
                 return;
             }
             
-            var visitor = new GeneratorTemplateWalker(sourceText, sourceText.Lines[0].EndIncludingLineBreak);
+            var visitor = new GeneratorTemplateWalker(sourceText);
 
             try
             {
                 visitor.Visit(root);
-                // var res = visitor.Complete();
                 // var text = res.Render(new StringBuilder()).ToString();
             }
-            catch (InvalidTemplateException)
+            catch (InvalidTemplateException t)
             {
             }
         }

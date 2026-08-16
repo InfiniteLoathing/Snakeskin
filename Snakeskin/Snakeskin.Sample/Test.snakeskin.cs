@@ -1,5 +1,5 @@
 ﻿// @template Test
-#region @replace #gest.guest[]:"test",                #mest              , nest[]             
+#region @replace #gest.guest:"test rep", mest          
 namespace InfiniteLoathing.Snakeskin.Sample
 {
     #region @replace Test
@@ -11,11 +11,8 @@ namespace InfiniteLoathing.Snakeskin.Sample
             
         }
         #endregion
-        
-        #region @remove
-            //removed comment
-        #endregion
     }
     #endregion
 }
 #endregion
+             

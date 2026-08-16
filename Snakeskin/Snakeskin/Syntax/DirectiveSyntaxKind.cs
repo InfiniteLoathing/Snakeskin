@@ -1,9 +1,11 @@
 ﻿namespace InfiniteLoathing.Snakeskin.Syntax
 {
-    internal enum SyntaxKind
+    internal enum DirectiveSyntaxKind
     {
+        None,
         Replace,
         Remove,
-        ForEach
+        ForEach,
+        Invalid
     }
 }
