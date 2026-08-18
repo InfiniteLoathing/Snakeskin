@@ -4,14 +4,14 @@ namespace InfiniteLoathing.Snakeskin.Syntax
 {
     internal class ValueParentSyntax
     {
-        public readonly string Identifier;
+        public string Identifier { get; }
 
-        public readonly Location Location;
+        public Location Location { get; }
 
         public ValueParentSyntax(string identifier, Location location)
         {
-            Identifier = identifier;
-            Location = location;
+            this.Identifier = identifier;
+            this.Location = location;
         }
     }
 }

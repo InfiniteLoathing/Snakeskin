@@ -2,8 +2,7 @@
 
 namespace InfiniteLoathing.Snakeskin.Templating
 {
-    internal interface ITemplateNode
+    internal class TemplateRootNode : ParentNode
     {
-        void Render(IndentedTextWriter writer);
     }
 }

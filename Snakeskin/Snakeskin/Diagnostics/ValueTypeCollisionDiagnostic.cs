@@ -1,4 +1,5 @@
-﻿using InfiniteLoathing.Snakeskin.Syntax;
+﻿using InfiniteLoathing.Snakeskin.Extensions;
+using InfiniteLoathing.Snakeskin.Syntax;
 using InfiniteLoathing.Snakeskin.Templating;
 using Microsoft.CodeAnalysis;
 
@@ -19,8 +20,6 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
         
         public Diagnostic CreateDiagnostic()
         {
-            var syntaxDisplayName = ValueTypeDisplayNames.Get(_syntax.IsObject, _syntax.IsArray);
-            var nodeDisplayName = ValueTypeDisplayNames.Get(_node.IsObject, _node.IsArray);
 
             return Diagnostic.Create(
                 descriptor: DiagnosticDescriptors.ValueTypeMismatch,
@@ -29,8 +28,8 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
                 messageArgs: new object[]
                 {
                     _syntax.Identifier,
-                    syntaxDisplayName,
-                    nodeDisplayName
+                    _syntax.ToDiagnosticTypeName(),
+                    _node.ToDiagnosticTypeName()
                 });
         }
     }

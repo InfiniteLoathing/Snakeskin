@@ -1,15 +1,16 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using InfiniteLoathing.Snakeskin.Templating;
+using Microsoft.CodeAnalysis;
 
 namespace InfiniteLoathing.Snakeskin.Syntax
 {
-    internal class ValueSyntax
+    internal class ValueSyntax : ITemplateValue
     {
-        public readonly bool IsObject;
-        public readonly ValueParentSyntax Parent;
-        public readonly string Identifier;
-        public readonly bool IsArray;
-        public readonly string ReplacementText;
-        public readonly Location Location;
+        public bool IsObject { get; }
+        public ValueParentSyntax Parent { get; }
+        public string Identifier { get; }
+        public bool IsArray { get; }
+        public string ReplacementText { get; }
+        public Location Location { get; }
 
         public ValueSyntax(
             bool isObject,
@@ -19,12 +20,12 @@ namespace InfiniteLoathing.Snakeskin.Syntax
             string replacementText,
             Location location)
         {
-            IsObject = isObject;
-            Parent = parent;
-            Identifier = identifier;
-            IsArray = isArray;
-            ReplacementText = replacementText ?? identifier;
-            Location = location;
+            this.IsObject = isObject;
+            this.Parent = parent;
+            this.Identifier = identifier;
+            this.IsArray = isArray;
+            this.ReplacementText = replacementText ?? identifier;
+            this.Location = location;
         }
     }
 }

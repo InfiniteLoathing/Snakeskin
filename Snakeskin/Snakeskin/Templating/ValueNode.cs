@@ -1,24 +1,24 @@
-﻿using System.Collections.Generic;
-using System.Text;
+﻿using System.CodeDom.Compiler;
+using System.Collections.Generic;
 using InfiniteLoathing.Snakeskin.Syntax;
 using Microsoft.CodeAnalysis;
 
 namespace InfiniteLoathing.Snakeskin.Templating
 {
-    internal class ValueNode : ITemplateNode
+    // current: Split replacement nodes?
+    internal class ValueNode : ITemplateNode, ITemplateValue
     {
-        
-        public readonly string ParentIdentifier;
-        
-        public readonly string Identifier;
+        public string ParentIdentifier { get; }
 
-        public readonly Location Location;
+        public string Identifier { get; }
 
-        public readonly bool IsArray;
+        public Location Location { get; }
 
-        public readonly bool IsObject;
+        public bool IsArray { get; }
 
-        protected readonly Dictionary<string, ValueNode> Properties;
+        public bool IsObject { get; }
+
+        protected Dictionary<string, ValueNode> Properties { get; }
 
         public ValueNode(
             string identifier,
@@ -26,12 +26,12 @@ namespace InfiniteLoathing.Snakeskin.Templating
             bool isArray = false,
             bool isObject = false)
         {
-            ParentIdentifier = null;
-            Identifier = identifier;
-            Location = location;
-            IsArray = isArray;
-            IsObject = isObject;
-            Properties = isObject ? new Dictionary<string, ValueNode>() : null;
+            this.ParentIdentifier = null;
+            this.Identifier = identifier;
+            this.Location = location;
+            this.IsArray = isArray;
+            this.IsObject = isObject;
+            this.Properties = isObject ? new Dictionary<string, ValueNode>() : null;
         }
 
         public ValueNode(
@@ -41,43 +41,76 @@ namespace InfiniteLoathing.Snakeskin.Templating
             bool isArray = false,
             bool isObject = false)
         {
-            ParentIdentifier = parentIdentifier;
-            Identifier = identifier;
-            Location = location;
-            IsArray = isArray;
-            IsObject = isObject;
-            Properties = isObject ? new Dictionary<string, ValueNode>() : null;
+            this.ParentIdentifier = parentIdentifier;
+            this.Identifier = identifier;
+            this.Location = location;
+            this.IsArray = isArray;
+            this.IsObject = isObject;
+            this.Properties = isObject ? new Dictionary<string, ValueNode>() : null;
         }
 
         public bool TypeMatches(ValueSyntax valueSyntax) =>
-            IsArray == valueSyntax.IsArray && IsObject == valueSyntax.IsObject;
+            this.IsArray == valueSyntax.IsArray && this.IsObject == valueSyntax.IsObject;
 
         public virtual bool TryGetProperty(string identifier, out ValueNode property) =>
-            Properties.TryGetValue(identifier, out property);
+            this.Properties.TryGetValue(identifier, out property);
 
         public virtual ValueNode AddProperty(ValueSyntax valueSyntax)
         {
             var property = new ValueNode(
-                Identifier,
+                this.Identifier,
                 valueSyntax.Identifier,
                 valueSyntax.Location,
                 valueSyntax.IsArray,
                 valueSyntax.IsObject);
             
-            Properties.Add(valueSyntax.Identifier, property);
+            this.Properties.Add(valueSyntax.Identifier, property);
 
             return property;
         }
 
-        // todo: finalize name
-        public virtual string GetIdentifierName() => ParentIdentifier is null
-            ? Identifier
-            : $"{ParentIdentifier}.{Identifier}";
+        // todo: rename with new convention
+        public virtual string GetIdentifierName() => this.ParentIdentifier is null
+            ? this.Identifier
+            : $"{this.ParentIdentifier}.{this.Identifier}";
 
-        public virtual StringBuilder Render(StringBuilder builder)
+        public virtual void Render(IndentedTextWriter writer) =>
+            writer.WriteLine(
+                $"{SourceConstants.StringBuilder}.Append({this.GetSourceVar()});");
+
+        public void RenderInterface(IndentedTextWriter writer)
         {
-            //todo: this
-            throw new System.NotImplementedException();
+            writer.WriteLine($"public interface {this.GetSourceInterface()}");
+            writer.WriteLine("{");
+            writer.Indent++;
+
+            foreach (var property in this.Properties.Values)
+            {
+                property.RenderProperty(writer);
+            }
+
+            writer.Indent--;
+            
+            writer.WriteLine("}");
+        }
+
+        public void RenderProperty(IndentedTextWriter writer) =>
+            writer.WriteLine($"{this.GetSourceType()} {this.Identifier} {{ get; set; }}");
+
+        public string GetSourceVar() => this.ParentIdentifier is null
+            ? $"_v{this.Identifier}"
+            : $"_v{this.ParentIdentifier}.{this.Identifier}";
+
+        private string GetSourceInterface() => $"I{this.Identifier}";
+
+        private string GetSourceType()
+        {
+            if (this.IsObject)
+            {
+                return this.IsArray ? $"{this.GetSourceInterface()}[]" : this.GetSourceInterface();
+            }
+
+            return this.IsArray ? "string[]" : "string";
         }
     }
 }

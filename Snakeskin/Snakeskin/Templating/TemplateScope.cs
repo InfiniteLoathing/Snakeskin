@@ -14,15 +14,21 @@ namespace InfiniteLoathing.Snakeskin.Templating
         private readonly ITemplateDiagnosticHandler _diagnosticHandler;
         private readonly DirectiveScope _emptyScope = new DirectiveScope();
 
+        public IReadOnlyDictionary<string, ValueNode> Values => _values;
+
         public TemplateScope(ITemplateDiagnosticHandler diagnosticHandler)
         {
             _diagnosticHandler = diagnosticHandler;
             this.RecalculateReplacements();
         }
 
-        public void AddDirectiveScope(DirectiveSyntax directiveSyntax) => this.PushScope(_emptyScope);
+        public RemoveNode AddRemove(RemoveDirectiveSyntax removeDirectiveSyntax)
+        {
+            this.PushScope(_emptyScope);
+            return new RemoveNode();
+        }
 
-        public void AddDirectiveScope(ReplaceDirectiveSyntax replaceDirectiveSyntax)
+        public ReplaceNode AddReplace(ReplaceDirectiveSyntax replaceDirectiveSyntax)
         {
             var validValues = new Dictionary<string, ValueNode>();
             
@@ -42,14 +48,16 @@ namespace InfiniteLoathing.Snakeskin.Templating
             }
 
             this.PushScope(new DirectiveScope(replacements: validValues.ToImmutableDictionary()));
+            return new ReplaceNode();
         }
 
-        public void AddDirectiveScope(ForEachDirectiveSyntax forEachDirectiveSyntax)
+        // current: find something better than returning null
+        public ForEachNode AddForEach(ForEachDirectiveSyntax forEachDirectiveSyntax)
         {
             if (!forEachDirectiveSyntax.IsValid)
             {
                 this.PushScope(_emptyScope);
-                return;
+                return null;
             }
 
             var iterator = forEachDirectiveSyntax.Iterator;
@@ -58,7 +66,7 @@ namespace InfiniteLoathing.Snakeskin.Templating
                 _diagnosticHandler.Handle(
                     new InvalidArgumentDiagnostic(Keywords.Remove, iterator.IsObject, iterator.IsArray, iterator.Location));
                 this.PushScope(_emptyScope);
-                return;
+                return null;
             }
 
             var array = forEachDirectiveSyntax.Array;
@@ -67,18 +75,21 @@ namespace InfiniteLoathing.Snakeskin.Templating
                 _diagnosticHandler.Handle(
                     new InvalidArgumentDiagnostic(Keywords.Remove, array.IsObject, array.IsArray, array.Location));
                 this.PushScope(_emptyScope);
-                return;
-                
+                return null;
             }
 
-            var iteratorNode = new ValueNode(iterator.Identifier, iterator.Location, false, iterator.IsObject);
+            this.Require(forEachDirectiveSyntax.Array, out var arrayNode);
+
+            var iteratorNode = new DerivedObjectValueNode(iterator.Identifier, iterator.Location, arrayNode);
             var values = new Dictionary<string, ValueNode> { { iterator.Identifier, iteratorNode } }
                 .ToImmutableDictionary();
             var replacements = iterator.IsObject
                 ? ImmutableDictionary<string, ValueNode>.Empty
-                : new Dictionary<string, ValueNode> { { iterator.Identifier, iteratorNode } }.ToImmutableDictionary();
+                : new Dictionary<string, ValueNode> { { iterator.ReplacementText, iteratorNode } }
+                    .ToImmutableDictionary();
 
             this.PushScope(new DirectiveScope(values, replacements));
+            return new ForEachNode(iteratorNode, arrayNode);
         }
 
         private void PushScope(DirectiveScope directiveScope)

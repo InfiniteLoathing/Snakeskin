@@ -1,5 +1,5 @@
-﻿using System.Text;
-using InfiniteLoathing.Snakeskin.Syntax;
+﻿using InfiniteLoathing.Snakeskin.Syntax;
+using Microsoft.CodeAnalysis;
 
 namespace InfiniteLoathing.Snakeskin.Templating
 {
@@ -7,15 +7,15 @@ namespace InfiniteLoathing.Snakeskin.Templating
     {
         private readonly ValueNode _original;
         
-        public DerivedObjectValueNode(string identifier, ValueNode original)
-            : base(identifier, original.Location, original.IsArray, true)
+        public DerivedObjectValueNode(string identifier, Location location, ValueNode original)
+            : base(identifier, location, false, true)
         {
             _original = original;
         }
 
         public override bool TryGetProperty(string identifier, out ValueNode property)
         {
-            if (Properties.TryGetValue(identifier, out property))
+            if (this.Properties.TryGetValue(identifier, out property))
             {
                 return true;
             }
@@ -23,12 +23,12 @@ namespace InfiniteLoathing.Snakeskin.Templating
             if (_original.TryGetProperty(identifier, out var originalProperty))
             {
                 property = new ValueNode(
-                    Identifier,
+                    this.Identifier,
                     originalProperty.Identifier,
                     originalProperty.Location,
                     originalProperty.IsArray,
                     originalProperty.IsObject);
-                Properties.Add(identifier, property);
+                this.Properties.Add(identifier, property);
                 return true;
             }
 
@@ -37,24 +37,16 @@ namespace InfiniteLoathing.Snakeskin.Templating
 
         public override ValueNode AddProperty(ValueSyntax valueSyntax)
         {
-            base.AddProperty(valueSyntax);
-            
             var property = new ValueNode(
-                Identifier,
+                this.Identifier,
                 valueSyntax.Identifier,
                 valueSyntax.Location,
                 valueSyntax.IsArray,
                 valueSyntax.IsObject);
             
-            Properties.Add(valueSyntax.Identifier, property);
-
+            this.Properties.Add(valueSyntax.Identifier, property);
+            _original.AddProperty(valueSyntax);
             return property;
-        }
-
-        public override StringBuilder Render(StringBuilder builder)
-        {
-            //todo: this
-            throw new System.NotImplementedException();
         }
     }
 }

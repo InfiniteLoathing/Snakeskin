@@ -10,35 +10,22 @@ namespace InfiniteLoathing.Snakeskin
 {
     internal class GeneratorTemplateWalker : TemplateWalker
     {
+        private readonly TemplateRootNode _templateRoot = new TemplateRootNode();
         private readonly Stack<ParentNode> _hierarchy = new Stack<ParentNode>();
         
         public GeneratorTemplateWalker(string filePath) : base(filePath)
         {
-            _hierarchy.Push(new RootNode());
+            _hierarchy.Push(_templateRoot);
         }
 
-        protected override void EnterDirectiveRegion(DirectiveSyntax directiveSyntax)
-        {
-            switch (directiveSyntax.Kind)
-            {
-                case DirectiveSyntaxKind.Replace:
-                    _hierarchy.Push(new ReplaceNode());
-                    break;
-                case DirectiveSyntaxKind.Remove:
-                    _hierarchy.Push(new RemoveNode());
-                    break;
-                case DirectiveSyntaxKind.ForEach:
-                    var forEachSyntax = (ForEachDirectiveSyntax)directiveSyntax;
-                    // todo: maybe directives should resolve into nodes earlier than this?
-                    _hierarchy.Push(new ForEachNode(forEachSyntax.Iterator.Identifier, forEachSyntax.Array.Identifier));
-                    break;
-                case DirectiveSyntaxKind.None:
-                case DirectiveSyntaxKind.Invalid:
-                    throw new InvalidOperationException("Attempted to add invalid directive to generator hierarchy");
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
+        public Template CreateTemplate(string @namespace, string className) =>
+            new Template(_templateRoot, this.SortRequiredValues(), @namespace, className);
+
+        public override void Handle(ITemplateDiagnostic _) =>
+            throw new InvalidTemplateException(
+                "Template generation failed. Check analyzer template walker for details.");
+
+        protected override void EnterDirectiveRegion(ParentNode node) => this.AddParentNode(node);
 
         protected override void ExitDirectiveRegion() => _hierarchy.Pop();
 
@@ -46,8 +33,10 @@ namespace InfiniteLoathing.Snakeskin
         
         protected override void ProcessTextNode(TextNode node) => _hierarchy.Peek().Children.Add(node);
 
-        public override void Handle(ITemplateDiagnostic _) =>
-            throw new InvalidTemplateException(
-                "Template generation failed. Check analyzer template walker for details.");
+        private void AddParentNode(ParentNode parentNode)
+        {
+            _hierarchy.Peek().Children.Add(parentNode);
+            _hierarchy.Push(parentNode);
+        }
     }
 }

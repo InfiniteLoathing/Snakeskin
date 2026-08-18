@@ -1,4 +1,6 @@
-﻿using InfiniteLoathing.Snakeskin.Exceptions;
+﻿using System.IO;
+using System.Text;
+using InfiniteLoathing.Snakeskin.Exceptions;
 using InfiniteLoathing.Snakeskin.Extensions;
 using InfiniteLoathing.Snakeskin.Syntax;
 using Microsoft.CodeAnalysis;
@@ -43,7 +45,11 @@ namespace InfiniteLoathing.Snakeskin
             try
             {
                 visitor.Visit(root);
-                // var text = res.Render(new StringBuilder()).ToString();
+                var createdTemplate = visitor.CreateTemplate(
+                    @namespace: "Snakeskin.Templates",
+                    className: template.GetSnakeskinFileName());
+                var templateRender = createdTemplate.Render();
+                context.AddSource(Path.GetFileName(template.Path), templateRender);
             }
             catch (InvalidTemplateException)
             {

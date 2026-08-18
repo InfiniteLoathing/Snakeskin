@@ -1,22 +1,26 @@
-﻿using System.Text;
+﻿using System.CodeDom.Compiler;
 
 namespace InfiniteLoathing.Snakeskin.Templating
 {
     internal class ForEachNode : ParentNode
     {
-        private readonly string _iterator;
-        private readonly string _array;
+        private readonly ValueNode _iterator;
+        private readonly ValueNode _array;
         
-        public ForEachNode(string iterator, string array)
+        public ForEachNode(ValueNode iterator, ValueNode array)
         {
             _iterator = iterator;
             _array = array;
         }
         
-        public override StringBuilder Render(StringBuilder builder)
+        public override void Render(IndentedTextWriter writer)
         {
-            //todo: this
-            throw new System.NotImplementedException();
+            writer.WriteLine($"foreach (var {_iterator.GetSourceVar()} in {_array.GetSourceVar()})");
+            writer.WriteLine("{");
+            writer.Indent++;
+            base.Render(writer);
+            writer.Indent--;
+            writer.WriteLine("}");
         }
     }
 }

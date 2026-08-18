@@ -88,6 +88,7 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
             ExpectedArguments,
             InvalidArgument,
             ValueTypeMismatch,
+            ValueParentTypeCollision,
             ValuePropertyTypeCollision);
     }
 }

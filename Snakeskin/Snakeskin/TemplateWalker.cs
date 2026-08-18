@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using InfiniteLoathing.Snakeskin.Diagnostics;
 using InfiniteLoathing.Snakeskin.Exceptions;
@@ -48,6 +49,10 @@ namespace InfiniteLoathing.Snakeskin
                 _regionIsDirective.Push(false);
                 return;
             }
+            
+            var directiveLineSpan = this.GetLineSpan(node);
+            this.ProcessTextSection(node.SyntaxTree.GetText(), directiveLineSpan.Start);
+            _unprocessedTextStart = directiveLineSpan.End;
 
             var parser = new DirectiveParser(
                 text: regionTextTrivia.ToFullString().AsSpan(),
@@ -64,22 +69,22 @@ namespace InfiniteLoathing.Snakeskin
                     _regionIsDirective.Push(true);
                     var replaceSyntax = parser.ParseReplace();
                     // todo: Consider wrapping this logic into EnterDirectiveRegion
-                    _templateScope.AddDirectiveScope(replaceSyntax);
-                    this.EnterDirectiveRegion(replaceSyntax);
+                    var replaceNode = _templateScope.AddReplace(replaceSyntax);
+                    this.EnterDirectiveRegion(replaceNode);
                     break;
                 case DirectiveSyntaxKind.Remove:
                     _regionIsDirective.Push(true);
                     var removeSyntax = parser.ParseRemove();
                     // todo: Consider wrapping this logic into EnterDirectiveRegion
-                    _templateScope.AddDirectiveScope(removeSyntax);
-                    this.EnterDirectiveRegion(removeSyntax);
+                    var removeNode = _templateScope.AddRemove(removeSyntax);
+                    this.EnterDirectiveRegion(removeNode);
                     break;
                 case DirectiveSyntaxKind.ForEach:
                     _regionIsDirective.Push(true);
                     var forEachSyntax = parser.ParseForEach();
                     // todo: Consider wrapping this logic into EnterDirectiveRegion
-                    _templateScope.AddDirectiveScope(forEachSyntax);
-                    this.EnterDirectiveRegion(forEachSyntax);
+                    var foreachNode = _templateScope.AddForEach(forEachSyntax);
+                    this.EnterDirectiveRegion(foreachNode);
                     break;
                 case DirectiveSyntaxKind.None:
                 case DirectiveSyntaxKind.Invalid:
@@ -88,10 +93,6 @@ namespace InfiniteLoathing.Snakeskin
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            
-            var directiveLineSpan = this.GetLineSpan(node);
-            this.ProcessTextSection(node.SyntaxTree.GetText(), directiveLineSpan.Start);
-            _unprocessedTextStart = directiveLineSpan.End;
         }
 
         public override void VisitEndRegionDirectiveTrivia(EndRegionDirectiveTriviaSyntax node)
@@ -113,7 +114,7 @@ namespace InfiniteLoathing.Snakeskin
 
         public abstract void Handle(ITemplateDiagnostic diagnostic);
 
-        protected virtual void EnterDirectiveRegion(DirectiveSyntax directiveSyntax)
+        protected virtual void EnterDirectiveRegion(ParentNode directiveNode)
         {
             
         }
@@ -155,6 +156,9 @@ namespace InfiniteLoathing.Snakeskin
         protected virtual void ProcessTextNode(TextNode node)
         {
         }
+
+        protected ImmutableArray<ValueNode> SortRequiredValues() =>
+            _templateScope.Values.Values.OrderBy(x => x.Location.SourceSpan.Start).ToImmutableArray();
 
         private TextSpan GetLineSpan(DirectiveTriviaSyntax node) =>
             node.SyntaxTree.GetText().Lines.Single(a => a.Span.Contains(node.Span)).SpanIncludingLineBreak;

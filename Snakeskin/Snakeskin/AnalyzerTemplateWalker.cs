@@ -10,7 +10,7 @@ namespace InfiniteLoathing.Snakeskin
     {
         private readonly AdditionalFileAnalysisContext _context;
         
-        //todo: figure out if this should be base class, do we need offsets?
+        //todo: figure out if this should be in the base class, do we need offsets?
         private readonly SourceTextLocator _locator;
         
         public AnalyzerTemplateWalker(AdditionalFileAnalysisContext context) : base(context.AdditionalFile.Path)
@@ -27,7 +27,7 @@ namespace InfiniteLoathing.Snakeskin
                 messageArgs: node.GetIdentifierName()));
         }
 
-        public override void Handle(ITemplateDiagnostic diagnosticKind) =>
-            _context.ReportDiagnostic(diagnosticKind.CreateDiagnostic());
+        public override void Handle(ITemplateDiagnostic diagnostic) =>
+            _context.ReportDiagnostic(diagnostic.CreateDiagnostic());
     }
 }

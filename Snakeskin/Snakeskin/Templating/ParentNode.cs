@@ -1,19 +1,17 @@
-﻿using System.Collections.Generic;
-using System.Text;
+﻿using System.CodeDom.Compiler;
+using System.Collections.Generic;
 
 namespace InfiniteLoathing.Snakeskin.Templating
 {
     // low: Figure out cleaner inheritance
     internal abstract class ParentNode : ITemplateNode
     {
-        public virtual StringBuilder Render(StringBuilder builder)
+        public virtual void Render(IndentedTextWriter writer)
         {
             foreach (var child in Children)
             {
-                child.Render(builder);
+                child.Render(writer);
             }
-
-            return builder;
         }
         
         public readonly List<ITemplateNode> Children = new List<ITemplateNode>();

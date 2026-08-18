@@ -1,4 +1,5 @@
-﻿using InfiniteLoathing.Snakeskin.Syntax;
+﻿using InfiniteLoathing.Snakeskin.Extensions;
+using InfiniteLoathing.Snakeskin.Syntax;
 using InfiniteLoathing.Snakeskin.Templating;
 using Microsoft.CodeAnalysis;
 
@@ -19,10 +20,10 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
         
         public Diagnostic CreateDiagnostic()
         {
-            var nodeDisplayName = ValueTypeDisplayNames.Get(_node.IsObject, _node.IsArray);
+            var nodeDisplayName = _node.ToDiagnosticTypeName();
 
             return Diagnostic.Create(
-                descriptor: DiagnosticDescriptors.ValueTypeMismatch,
+                descriptor: DiagnosticDescriptors.ValueParentTypeCollision,
                 location: _syntax.Location,
                 additionalLocations: new[] { _node.Location },
                 messageArgs: new object[]

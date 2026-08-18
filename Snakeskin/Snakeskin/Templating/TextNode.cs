@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.CodeDom.Compiler;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace InfiniteLoathing.Snakeskin.Templating
 {
@@ -11,10 +12,8 @@ namespace InfiniteLoathing.Snakeskin.Templating
             this.Text = text;
         }
 
-        public StringBuilder Render(StringBuilder builder)
-        {
-            //todo: this
-            throw new System.NotImplementedException();
-        }
+        public void Render(IndentedTextWriter writer) =>
+            writer.WriteLine(
+                $"{SourceConstants.StringBuilder}.Append({SymbolDisplay.FormatLiteral(this.Text, true)});");
     }
 }
