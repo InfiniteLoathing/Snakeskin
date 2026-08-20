@@ -18,13 +18,13 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
             _node = node;
         }
         
-        public Diagnostic CreateDiagnostic()
+        public Diagnostic CreateDiagnostic(Location location)
         {
 
             return Diagnostic.Create(
                 descriptor: DiagnosticDescriptors.ValueTypeMismatch,
-                location: _syntax.Location,
-                additionalLocations: new[] { _node.Location },
+                location: location,
+                //additionalLocations: new[] { _node.Location },
                 messageArgs: new object[]
                 {
                     _syntax.Identifier,

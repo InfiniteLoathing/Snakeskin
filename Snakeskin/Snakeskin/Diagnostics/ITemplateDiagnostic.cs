@@ -4,6 +4,6 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
 {
     internal interface ITemplateDiagnostic
     {
-        Diagnostic CreateDiagnostic();
+        Diagnostic CreateDiagnostic(Location location);
     }
 }

@@ -21,7 +21,7 @@ namespace InfiniteLoathing.Snakeskin
         public Template CreateTemplate(string @namespace, string className) =>
             new Template(_templateRoot, this.SortRequiredValues(), @namespace, className);
 
-        public override void Handle(ITemplateDiagnostic _) =>
+        public override void Handle(ITemplateDiagnostic _, TextSpan __) =>
             throw new InvalidTemplateException(
                 "Template generation failed. Check analyzer template walker for details.");
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using InfiniteLoathing.Snakeskin.Syntax;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Text;
 
 namespace InfiniteLoathing.Snakeskin.Templating
 {
@@ -12,7 +13,7 @@ namespace InfiniteLoathing.Snakeskin.Templating
 
         public string Identifier { get; }
 
-        public Location Location { get; }
+        public TextSpan TextSpan { get; }
 
         public bool IsArray { get; }
 
@@ -22,13 +23,13 @@ namespace InfiniteLoathing.Snakeskin.Templating
 
         public ValueNode(
             string identifier,
-            Location location,
+            TextSpan textSpan,
             bool isArray = false,
             bool isObject = false)
         {
             this.ParentIdentifier = null;
             this.Identifier = identifier;
-            this.Location = location;
+            this.TextSpan = textSpan;
             this.IsArray = isArray;
             this.IsObject = isObject;
             this.Properties = isObject ? new Dictionary<string, ValueNode>() : null;
@@ -37,13 +38,13 @@ namespace InfiniteLoathing.Snakeskin.Templating
         public ValueNode(
             string parentIdentifier,
             string identifier,
-            Location location,
+            TextSpan textSpan,
             bool isArray = false,
             bool isObject = false)
         {
             this.ParentIdentifier = parentIdentifier;
             this.Identifier = identifier;
-            this.Location = location;
+            this.TextSpan = textSpan;
             this.IsArray = isArray;
             this.IsObject = isObject;
             this.Properties = isObject ? new Dictionary<string, ValueNode>() : null;
@@ -60,7 +61,7 @@ namespace InfiniteLoathing.Snakeskin.Templating
             var property = new ValueNode(
                 this.Identifier,
                 valueSyntax.Identifier,
-                valueSyntax.Location,
+                valueSyntax.TextSpan,
                 valueSyntax.IsArray,
                 valueSyntax.IsObject);
             

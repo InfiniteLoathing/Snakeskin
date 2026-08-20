@@ -9,18 +9,15 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
         public readonly bool IsObject;
 
         public readonly bool IsArray;
-
-        public readonly Location Location;
         
-        public InvalidArgumentDiagnostic(string directiveName, bool isObject, bool isArray, Location location)
+        public InvalidArgumentDiagnostic(string directiveName, bool isObject, bool isArray)
         {
             DirectiveName = directiveName;
             IsObject = isObject;
             IsArray = isArray;
-            Location = location;
         }
 
-        public Diagnostic CreateDiagnostic()
+        public Diagnostic CreateDiagnostic(Location location)
         {
             var type = IsObject ? "Object" : "String";
             if (IsArray)
@@ -30,7 +27,7 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
 
             return Diagnostic.Create(
                 descriptor: DiagnosticDescriptors.InvalidArgument,
-                location: Location,
+                location: location,
                 DirectiveName, type);
         }
     }

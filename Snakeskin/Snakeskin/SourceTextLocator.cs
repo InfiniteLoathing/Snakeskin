@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace InfiniteLoathing.Snakeskin
 {
-    internal class SourceTextLocator
+    internal class SourceTextLocator : ILocator
     {
         private readonly string _filePath;
         private readonly SourceText _sourceText;

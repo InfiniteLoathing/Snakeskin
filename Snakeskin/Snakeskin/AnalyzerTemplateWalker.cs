@@ -11,9 +11,17 @@ namespace InfiniteLoathing.Snakeskin
         private readonly AdditionalFileAnalysisContext _context;
         
         //todo: figure out if this should be in the base class, do we need offsets?
-        private readonly SourceTextLocator _locator;
+        private readonly ILocator _locator;
         
-        public AnalyzerTemplateWalker(AdditionalFileAnalysisContext context) : base(context.AdditionalFile.Path)
+        public AnalyzerTemplateWalker(AdditionalFileAnalysisContext context, SyntaxTree syntaxTree)
+            : base(context.AdditionalFile.Path)
+        {
+            _context = context;
+            _locator = new SyntaxTreeLocator(syntaxTree);
+        }
+        
+        public AnalyzerTemplateWalker(AdditionalFileAnalysisContext context)
+            : base(context.AdditionalFile.Path)
         {
             _context = context;
             _locator = new SourceTextLocator(context.AdditionalFile.Path, context.AdditionalFile.GetText());
@@ -27,7 +35,7 @@ namespace InfiniteLoathing.Snakeskin
                 messageArgs: node.GetIdentifierName()));
         }
 
-        public override void Handle(ITemplateDiagnostic diagnostic) =>
-            _context.ReportDiagnostic(diagnostic.CreateDiagnostic());
+        public override void Handle(ITemplateDiagnostic diagnostic, TextSpan textSpan) =>
+            _context.ReportDiagnostic(diagnostic.CreateDiagnostic(_locator.Locate(textSpan)));
     }
 }

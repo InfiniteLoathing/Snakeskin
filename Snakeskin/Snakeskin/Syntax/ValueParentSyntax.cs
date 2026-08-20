@@ -1,4 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Text;
 
 namespace InfiniteLoathing.Snakeskin.Syntax
 {
@@ -6,12 +7,12 @@ namespace InfiniteLoathing.Snakeskin.Syntax
     {
         public string Identifier { get; }
 
-        public Location Location { get; }
+        public TextSpan TextSpan { get; }
 
-        public ValueParentSyntax(string identifier, Location location)
+        public ValueParentSyntax(string identifier, TextSpan textSpan)
         {
             this.Identifier = identifier;
-            this.Location = location;
+            this.TextSpan = textSpan;
         }
     }
 }

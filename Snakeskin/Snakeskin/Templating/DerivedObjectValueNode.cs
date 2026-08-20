@@ -1,5 +1,6 @@
 ﻿using InfiniteLoathing.Snakeskin.Syntax;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Text;
 
 namespace InfiniteLoathing.Snakeskin.Templating
 {
@@ -7,8 +8,8 @@ namespace InfiniteLoathing.Snakeskin.Templating
     {
         private readonly ValueNode _original;
         
-        public DerivedObjectValueNode(string identifier, Location location, ValueNode original)
-            : base(identifier, location, false, true)
+        public DerivedObjectValueNode(string identifier, TextSpan textSpan, ValueNode original)
+            : base(identifier, textSpan, false, true)
         {
             _original = original;
         }
@@ -25,7 +26,7 @@ namespace InfiniteLoathing.Snakeskin.Templating
                 property = new ValueNode(
                     this.Identifier,
                     originalProperty.Identifier,
-                    originalProperty.Location,
+                    originalProperty.TextSpan,
                     originalProperty.IsArray,
                     originalProperty.IsObject);
                 this.Properties.Add(identifier, property);
@@ -40,7 +41,7 @@ namespace InfiniteLoathing.Snakeskin.Templating
             var property = new ValueNode(
                 this.Identifier,
                 valueSyntax.Identifier,
-                valueSyntax.Location,
+                valueSyntax.TextSpan,
                 valueSyntax.IsArray,
                 valueSyntax.IsObject);
             

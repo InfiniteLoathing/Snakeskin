@@ -5,17 +5,15 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
     internal class InvalidDirectiveDiagnostic : ITemplateDiagnostic
     {
         public readonly string Name;
-        public readonly Location Location;
 
-        public InvalidDirectiveDiagnostic(string name, Location location)
+        public InvalidDirectiveDiagnostic(string name)
         {
             Name = name;
-            Location = location;
         }
 
-        public Diagnostic CreateDiagnostic() => Diagnostic.Create(
+        public Diagnostic CreateDiagnostic(Location location) => Diagnostic.Create(
             descriptor: DiagnosticDescriptors.InvalidDirective,
-            location: Location,
+            location: location,
             messageArgs: Name);
     }
 }

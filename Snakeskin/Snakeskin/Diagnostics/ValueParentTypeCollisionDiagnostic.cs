@@ -18,14 +18,14 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
             _node = node;
         }
         
-        public Diagnostic CreateDiagnostic()
+        public Diagnostic CreateDiagnostic(Location location)
         {
             var nodeDisplayName = _node.ToDiagnosticTypeName();
 
             return Diagnostic.Create(
                 descriptor: DiagnosticDescriptors.ValueParentTypeCollision,
-                location: _syntax.Location,
-                additionalLocations: new[] { _node.Location },
+                location: location,
+                //additionalLocations: new[] { _node.Location },
                 messageArgs: new object[]
                 {
                     _syntax.Identifier,

@@ -7,15 +7,15 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
     {
         public TokenKind Kind;
 
-        public Location Location;
-
-        public UnexpectedTokenDiagnostic(TokenKind kind, Location location)
+        public UnexpectedTokenDiagnostic(TokenKind kind)
         {
             Kind = kind;
-            Location = location;
         }
 
-        public Diagnostic CreateDiagnostic() =>
-            Diagnostic.Create(DiagnosticDescriptors.UnexpectedToken, Location, TokenDisplayNames.Get(Kind));
+        public Diagnostic CreateDiagnostic(Location location) =>
+            Diagnostic.Create(
+                descriptor: DiagnosticDescriptors.UnexpectedToken,
+                location: location,
+                messageArgs: TokenDisplayNames.Get(Kind));
     }
 }

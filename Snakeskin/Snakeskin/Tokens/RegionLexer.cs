@@ -24,7 +24,8 @@ namespace InfiniteLoathing.Snakeskin.Tokens
         private const int BracketLength = 2;
 
         private readonly ReadOnlySpan<char> _text;
-        
+        private readonly int _filePosition;
+
         public int Position { get; private set; }
         public Token Current { get; private set; }
 
@@ -32,9 +33,10 @@ namespace InfiniteLoathing.Snakeskin.Tokens
 
         private bool IsComplete => this.Position >= _text.Length;
 
-        public RegionLexer(ReadOnlySpan<char> text)
+        public RegionLexer(ReadOnlySpan<char> text, int filePosition)
         {
             _text = text;
+            _filePosition = filePosition;
             this.Position = 0;
             this.Current = default;
             this.SkipWhitespace();
@@ -161,11 +163,11 @@ namespace InfiniteLoathing.Snakeskin.Tokens
             this.Current = CreateToken(TokenKind.String, span, start, length);
         }
 
-        private static Token CreateToken(TokenKind kind, ReadOnlySpan<char> slice, int start, int length) =>
-            new Token(kind, new TextSpan(start, length), slice);
+        private Token CreateToken(TokenKind kind, ReadOnlySpan<char> slice, int start, int length) =>
+            new Token(kind, new TextSpan(_filePosition + start, length), slice);
 
         private Token CreateToken(TokenKind kind, int start, int length) =>
-            new Token(kind, new TextSpan(start, length), _text.Slice(start, length));
+            new Token(kind, new TextSpan(_filePosition + start, length), _text.Slice(start, length));
 
         private bool TryPeek(out char peekChar)
         {

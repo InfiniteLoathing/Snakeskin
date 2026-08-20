@@ -56,10 +56,7 @@ namespace InfiniteLoathing.Snakeskin
 
             var parser = new DirectiveParser(
                 text: regionTextTrivia.ToFullString().AsSpan(),
-                locator: new SourceTextLocator(
-                    _filePath,
-                    node.SyntaxTree.GetText(),
-                    regionTextTrivia.First().GetLocation().SourceSpan.Start),
+                filePosition: regionTextTrivia.First().GetLocation().SourceSpan.Start,
                 diagnosticHandler: this);
 
             // low: Reorganize this
@@ -112,7 +109,7 @@ namespace InfiniteLoathing.Snakeskin
             this.ExitDirectiveRegion();
         }
 
-        public abstract void Handle(ITemplateDiagnostic diagnostic);
+        public abstract void Handle(ITemplateDiagnostic diagnostic, TextSpan textSpan);
 
         protected virtual void EnterDirectiveRegion(ParentNode directiveNode)
         {
@@ -158,7 +155,7 @@ namespace InfiniteLoathing.Snakeskin
         }
 
         protected ImmutableArray<ValueNode> SortRequiredValues() =>
-            _templateScope.Values.Values.OrderBy(x => x.Location.SourceSpan.Start).ToImmutableArray();
+            _templateScope.Values.Values.OrderBy(x => x.TextSpan.Start).ToImmutableArray();
 
         private TextSpan GetLineSpan(DirectiveTriviaSyntax node) =>
             node.SyntaxTree.GetText().Lines.Single(a => a.Span.Contains(node.Span)).SpanIncludingLineBreak;

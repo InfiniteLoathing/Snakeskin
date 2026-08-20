@@ -17,11 +17,11 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
             _node = node;
         }
 
-        public Diagnostic CreateDiagnostic() =>
+        public Diagnostic CreateDiagnostic(Location location) =>
             Diagnostic.Create(
                 descriptor: DiagnosticDescriptors.ValuePropertyTypeCollision,
-                location: _syntax.Location,
-                additionalLocations: new[] { _node.Location },
+                location: location,
+                //additionalLocations: new[] { _node.Location },
                 messageArgs: new object[]
                 {
                     _syntax.Identifier,

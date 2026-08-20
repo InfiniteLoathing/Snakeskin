@@ -11,15 +11,13 @@ namespace InfiniteLoathing.Snakeskin.Syntax
     {
         private RegionLexer _lexer;
         private readonly ITemplateDiagnosticHandler _diagnosticHandler;
-        private readonly SourceTextLocator _locator;
         
         public DirectiveParser(
             ReadOnlySpan<char> text,
-            SourceTextLocator locator,
+            int filePosition,
             ITemplateDiagnosticHandler diagnosticHandler)
         {
-            _lexer = new RegionLexer(text);
-            _locator = locator;
+            _lexer = new RegionLexer(text, filePosition);
             _diagnosticHandler = diagnosticHandler;
         }
 
@@ -40,7 +38,7 @@ namespace InfiniteLoathing.Snakeskin.Syntax
             {
                 return true;
             }
-            _diagnosticHandler.Handle(new UnexpectedTokenDiagnostic(token.Kind, _locator.Locate(token.TextSpan)));
+            _diagnosticHandler.Handle(new UnexpectedTokenDiagnostic(token.Kind), token.TextSpan);
             return false;
         }
 
@@ -67,8 +65,8 @@ namespace InfiniteLoathing.Snakeskin.Syntax
                 return DirectiveSyntaxKind.ForEach;
             }
 
-            _diagnosticHandler.Handle(
-                new InvalidDirectiveDiagnostic(identifier.CharSpan.ToString(), _locator.Locate(identifier.TextSpan)));
+            _diagnosticHandler.Handle(new InvalidDirectiveDiagnostic(identifier.CharSpan.ToString()),
+                identifier.TextSpan);
             
             return DirectiveSyntaxKind.Invalid;
         }
@@ -77,8 +75,7 @@ namespace InfiniteLoathing.Snakeskin.Syntax
         {
             if (_lexer.Current.Kind == TokenKind.End)
             {
-                _diagnosticHandler.Handle(
-                    new ExpectedArgumentsDiagnostic(Keywords.Replace, _locator.Locate(_lexer.Current.TextSpan)));
+                _diagnosticHandler.Handle(new ExpectedArgumentsDiagnostic(Keywords.Replace), _lexer.Current.TextSpan);
                 
                 return new ReplaceDirectiveSyntax(ImmutableArray<ValueSyntax>.Empty);
             }
@@ -165,15 +162,14 @@ namespace InfiniteLoathing.Snakeskin.Syntax
             value = new ValueSyntax(
                 isObject,
                 hasParentObject
-                    ? new ValueParentSyntax(parentObject.CharSpan.ToString(), _locator.Locate(parentObject.TextSpan))
+                    ? new ValueParentSyntax(parentObject.CharSpan.ToString(), parentObject.TextSpan)
                     : null,
                 identifier.CharSpan.ToString(),
                 isArray,
                 hasReplacementText
                     ? quotedReplacementText.Slice(1, quotedReplacementText.CharSpan.Length - 2).ToString()
                     : null,
-                location: _locator.Locate(TextSpan.FromBounds(start, _lexer.Current.TextSpan.End))
-                );
+                textSpan: TextSpan.FromBounds(start, _lexer.Current.TextSpan.End));
             return true;
         }
     }

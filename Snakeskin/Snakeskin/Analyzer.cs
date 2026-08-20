@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Linq;
 using InfiniteLoathing.Snakeskin.Diagnostics;
 using InfiniteLoathing.Snakeskin.Exceptions;
 using InfiniteLoathing.Snakeskin.Extensions;
@@ -10,12 +11,13 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace InfiniteLoathing.Snakeskin
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    internal class Analyzer : DiagnosticAnalyzer
+    public class Analyzer : DiagnosticAnalyzer
     {
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => DiagnosticDescriptors.All;
 
         public override void Initialize(AnalysisContext context)
         {
+            var t = context.MinimumReportedSeverity;
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
             context.RegisterAdditionalFileAction(AnalyzeTemplate);
@@ -35,23 +37,32 @@ namespace InfiniteLoathing.Snakeskin
                 return;
             }
 
-            if (!CSharpSyntaxTree
+            var syntaxRoot = context.Compilation.SyntaxTrees
+                .SingleOrDefault(x => x.FilePath == context.AdditionalFile.Path)?
+                .GetRoot();
+
+            var isCompilationSyntaxRoot = syntaxRoot != null;
+
+            if (!isCompilationSyntaxRoot
+                && !CSharpSyntaxTree
                     .ParseText(sourceText, cancellationToken: context.CancellationToken)
-                    .TryGetRoot(out var root))
+                    .TryGetRoot(out syntaxRoot))
             {
                 return;
             }
 
-            if (!RootValidator.RegionsAreValid(root))
+            if (!RootValidator.RegionsAreValid(syntaxRoot))
             {
                 return;
             }
             
-            var visitor = new AnalyzerTemplateWalker(context);
+            var visitor = isCompilationSyntaxRoot
+                ? new AnalyzerTemplateWalker(context, syntaxRoot.SyntaxTree)
+                : new AnalyzerTemplateWalker(context);
 
             try
             {
-                visitor.Visit(root);
+                visitor.Visit(syntaxRoot);
             }
             catch (InvalidTemplateException)
             {
