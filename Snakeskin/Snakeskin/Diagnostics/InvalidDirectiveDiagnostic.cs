@@ -14,7 +14,7 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
         }
 
         public Diagnostic CreateDiagnostic() => Diagnostic.Create(
-            descriptor: DiagnosticDescriptors.InvalidArgument,
+            descriptor: DiagnosticDescriptors.InvalidDirective,
             location: Location,
             messageArgs: Name);
     }

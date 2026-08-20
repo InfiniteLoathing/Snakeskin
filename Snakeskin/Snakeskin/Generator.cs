@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using System.Text;
 using InfiniteLoathing.Snakeskin.Exceptions;
 using InfiniteLoathing.Snakeskin.Extensions;
 using InfiniteLoathing.Snakeskin.Syntax;
