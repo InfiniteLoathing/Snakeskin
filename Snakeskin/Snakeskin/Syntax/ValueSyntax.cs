@@ -1,6 +1,4 @@
-﻿using InfiniteLoathing.Snakeskin.Templating;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Text;
+﻿using Microsoft.CodeAnalysis.Text;
 
 namespace InfiniteLoathing.Snakeskin.Syntax
 {

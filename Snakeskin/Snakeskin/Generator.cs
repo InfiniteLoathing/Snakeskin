@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using InfiniteLoathing.Snakeskin.Exceptions;
-using InfiniteLoathing.Snakeskin.Extensions;
 using InfiniteLoathing.Snakeskin.Syntax;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;

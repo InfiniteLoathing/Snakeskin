@@ -1,6 +1,4 @@
-﻿using InfiniteLoathing.Snakeskin.Templating;
-
-namespace InfiniteLoathing.Snakeskin.Extensions
+﻿namespace InfiniteLoathing.Snakeskin.Extensions
 {
 
     internal static class ValueDefinitionExtensions

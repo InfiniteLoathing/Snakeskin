@@ -1,6 +1,4 @@
-﻿using System.CodeDom.Compiler;
-
-namespace InfiniteLoathing.Snakeskin.Templating
+﻿namespace InfiniteLoathing.Snakeskin.Templating
 {
     internal class TemplateRootNode : ParentNode
     {
