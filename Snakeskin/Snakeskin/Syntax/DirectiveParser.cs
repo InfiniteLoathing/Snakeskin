@@ -42,40 +42,45 @@ namespace InfiniteLoathing.Snakeskin.Syntax
             return false;
         }
 
-        public DirectiveSyntaxKind ParseDirectiveKind()
+        public DirectiveSyntaxKind ParseDirectiveKind(out TextSpan textSpan)
         {
             if (!this.Accept(TokenKind.At, out _)
                 || !this.Expect(TokenKind.String, out var identifier))
             {
+                textSpan = default;
                 return DirectiveSyntaxKind.None;
             }
             
             if (identifier.CharSpan.SequenceEqual(Keywords.Replace))
             {
+                textSpan = identifier.TextSpan;
                 return DirectiveSyntaxKind.Replace;
             }
 
             if (identifier.CharSpan.SequenceEqual(Keywords.Remove))
             {
+                textSpan = identifier.TextSpan;
                 return DirectiveSyntaxKind.Remove;
             }
 
             if (identifier.CharSpan.SequenceEqual(Keywords.ForEach))
             {
+                textSpan = identifier.TextSpan;
                 return DirectiveSyntaxKind.ForEach;
             }
 
             _diagnosticHandler.Handle(new InvalidDirectiveDiagnostic(identifier.CharSpan.ToString()),
                 identifier.TextSpan);
             
+            textSpan = identifier.TextSpan;
             return DirectiveSyntaxKind.Invalid;
         }
 
-        public ReplaceDirectiveSyntax ParseReplace()
+        public ReplaceDirectiveSyntax ParseReplace(TextSpan directiveTextSpan)
         {
             if (_lexer.Current.Kind == TokenKind.End)
             {
-                _diagnosticHandler.Handle(new ExpectedArgumentsDiagnostic(Keywords.Replace), _lexer.Current.TextSpan);
+                _diagnosticHandler.Handle(new ExpectedArgumentsDiagnostic(Keywords.Replace), directiveTextSpan);
                 
                 return new ReplaceDirectiveSyntax(ImmutableArray<ValueSyntax>.Empty);
             }

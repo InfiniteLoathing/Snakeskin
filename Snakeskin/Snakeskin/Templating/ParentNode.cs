@@ -3,8 +3,7 @@ using System.Collections.Generic;
 
 namespace InfiniteLoathing.Snakeskin.Templating
 {
-    // low: Figure out cleaner inheritance
-    internal abstract class ParentNode : ITemplateNode
+    internal class ParentNode : ITemplateNode
     {
         public virtual void Render(IndentedTextWriter writer)
         {

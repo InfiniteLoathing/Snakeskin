@@ -1,0 +1,7 @@
+﻿<Project>
+    <ItemGroup Condition="'$(CompileExports)' != 'true'">
+        <AdditionalFiles Include="**\*.snakeskin.cs" />
+        <Compile Remove="**\*.snakeskin.cs" />
+        <None Include="**\*.snakeskin.cs" />
+    </ItemGroup>
+</Project>

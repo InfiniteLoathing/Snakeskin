@@ -4,6 +4,8 @@ namespace InfiniteLoathing.Snakeskin.Templating
 {
     internal class DirectiveScope
     {
+        public static readonly DirectiveScope Empty = new DirectiveScope();
+        
         public DirectiveScope(
             ImmutableDictionary<string, ValueNode> values = null,
             ImmutableDictionary<string, ValueNode> replacements = null)

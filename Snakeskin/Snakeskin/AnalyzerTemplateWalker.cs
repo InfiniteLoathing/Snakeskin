@@ -1,4 +1,5 @@
-﻿using InfiniteLoathing.Snakeskin.Diagnostics;
+﻿using System;
+using InfiniteLoathing.Snakeskin.Diagnostics;
 using InfiniteLoathing.Snakeskin.Templating;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -8,34 +9,28 @@ namespace InfiniteLoathing.Snakeskin
 {
     internal class AnalyzerTemplateWalker : TemplateWalker
     {
-        private readonly AdditionalFileAnalysisContext _context;
-        
-        //todo: figure out if this should be in the base class, do we need offsets?
+        private readonly Action<Diagnostic> _reportDiagnostic;
         private readonly ILocator _locator;
         
-        public AnalyzerTemplateWalker(AdditionalFileAnalysisContext context, SyntaxTree syntaxTree)
-            : base(context.AdditionalFile.Path)
+        public AnalyzerTemplateWalker(SyntaxTreeAnalysisContext context)
         {
-            _context = context;
-            _locator = new SyntaxTreeLocator(syntaxTree);
+            _reportDiagnostic = context.ReportDiagnostic;
+            _locator = new SyntaxTreeLocator(context.Tree);
         }
         
         public AnalyzerTemplateWalker(AdditionalFileAnalysisContext context)
-            : base(context.AdditionalFile.Path)
         {
-            _context = context;
+            _reportDiagnostic = context.ReportDiagnostic;
             _locator = new SourceTextLocator(context.AdditionalFile.Path, context.AdditionalFile.GetText());
         }
 
-        protected override void ProcessValueNode(ValueNode node, TextSpan textSpan)
-        {
-            _context.ReportDiagnostic(Diagnostic.Create(
+        protected override void ProcessValueNode(ValueNode node, TextSpan textSpan) =>
+            _reportDiagnostic(Diagnostic.Create(
                 descriptor: DiagnosticDescriptors.ValueReplacement,
                 location: _locator.Locate(textSpan),
-                messageArgs: node.GetIdentifierName()));
-        }
+                messageArgs: node.GetDiagnosticIdentifier()));
 
         public override void Handle(ITemplateDiagnostic diagnostic, TextSpan textSpan) =>
-            _context.ReportDiagnostic(diagnostic.CreateDiagnostic(_locator.Locate(textSpan)));
+            _reportDiagnostic(diagnostic.CreateDiagnostic(_locator.Locate(textSpan)));
     }
 }

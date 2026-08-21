@@ -12,7 +12,6 @@ namespace InfiniteLoathing.Snakeskin.Templating
         private readonly Dictionary<string, ValueNode> _values = new Dictionary<string, ValueNode>();
         private readonly Stack<DirectiveScope> _directiveScopes = new Stack<DirectiveScope>();
         private readonly ITemplateDiagnosticHandler _diagnosticHandler;
-        private readonly DirectiveScope _emptyScope = new DirectiveScope();
 
         public IReadOnlyDictionary<string, ValueNode> Values => _values;
 
@@ -22,13 +21,13 @@ namespace InfiniteLoathing.Snakeskin.Templating
             this.RecalculateReplacements();
         }
 
-        public RemoveNode AddRemove(RemoveDirectiveSyntax removeDirectiveSyntax)
+        public ParentNode AddRemove(RemoveDirectiveSyntax removeDirectiveSyntax)
         {
-            this.PushScope(_emptyScope);
+            this.PushScope(DirectiveScope.Empty);
             return new RemoveNode();
         }
 
-        public ReplaceNode AddReplace(ReplaceDirectiveSyntax replaceDirectiveSyntax)
+        public ParentNode AddReplace(ReplaceDirectiveSyntax replaceDirectiveSyntax)
         {
             var validValues = new Dictionary<string, ValueNode>();
             
@@ -48,16 +47,15 @@ namespace InfiniteLoathing.Snakeskin.Templating
             }
 
             this.PushScope(new DirectiveScope(replacements: validValues.ToImmutableDictionary()));
-            return new ReplaceNode();
+            return new ParentNode();
         }
 
-        // current: find something better than returning null
-        public ForEachNode AddForEach(ForEachDirectiveSyntax forEachDirectiveSyntax)
+        public ParentNode AddForEach(ForEachDirectiveSyntax forEachDirectiveSyntax)
         {
             if (!forEachDirectiveSyntax.IsValid)
             {
-                this.PushScope(_emptyScope);
-                return null;
+                this.PushScope(DirectiveScope.Empty);
+                return new ParentNode();
             }
 
             var iterator = forEachDirectiveSyntax.Iterator;
@@ -66,8 +64,8 @@ namespace InfiniteLoathing.Snakeskin.Templating
                 _diagnosticHandler.Handle(
                     new InvalidArgumentDiagnostic(Keywords.Remove, iterator.IsObject, iterator.IsArray),
                     iterator.TextSpan);
-                this.PushScope(_emptyScope);
-                return null;
+                this.PushScope(DirectiveScope.Empty);
+                return new ParentNode();
             }
 
             var array = forEachDirectiveSyntax.Array;
@@ -75,8 +73,8 @@ namespace InfiniteLoathing.Snakeskin.Templating
             {
                 _diagnosticHandler.Handle(
                     new InvalidArgumentDiagnostic(Keywords.Remove, array.IsObject, array.IsArray), array.TextSpan);
-                this.PushScope(_emptyScope);
-                return null;
+                this.PushScope(DirectiveScope.Empty);
+                return new ParentNode();
             }
 
             this.Require(forEachDirectiveSyntax.Array, out var arrayNode);

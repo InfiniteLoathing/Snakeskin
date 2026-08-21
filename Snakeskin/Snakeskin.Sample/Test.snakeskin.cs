@@ -1,7 +1,5 @@
 ﻿#region @replace #TestObj.StringLiteral:"replaced string literal", Namespace
 
-using System;
-
 namespace Namespace
 {
     #region @replace ClassName
@@ -33,4 +31,3 @@ namespace Namespace
     #endregion
 }
 #endregion
-             

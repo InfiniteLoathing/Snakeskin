@@ -1,13 +1,11 @@
 ﻿using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using InfiniteLoathing.Snakeskin.Syntax;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
 namespace InfiniteLoathing.Snakeskin.Templating
 {
-    // current: Split replacement nodes?
-    internal class ValueNode : ITemplateNode, ITemplateValue
+    internal class ValueNode : ITemplateNode, IValueDefinition
     {
         public string ParentIdentifier { get; }
 
@@ -70,11 +68,6 @@ namespace InfiniteLoathing.Snakeskin.Templating
             return property;
         }
 
-        // todo: rename with new convention
-        public virtual string GetIdentifierName() => this.ParentIdentifier is null
-            ? this.Identifier
-            : $"{this.ParentIdentifier}.{this.Identifier}";
-
         public virtual void Render(IndentedTextWriter writer) =>
             writer.WriteLine(
                 $"{SourceConstants.StringBuilder}.Append({this.GetSourceVar()});");
@@ -97,6 +90,10 @@ namespace InfiniteLoathing.Snakeskin.Templating
 
         public void RenderProperty(IndentedTextWriter writer) =>
             writer.WriteLine($"{this.GetSourceType()} {this.Identifier} {{ get; set; }}");
+
+        public string GetDiagnosticIdentifier() => this.ParentIdentifier is null
+            ? this.Identifier
+            : $"{this.ParentIdentifier}.{this.Identifier}";
 
         public string GetSourceVar() => this.ParentIdentifier is null
             ? $"_v{this.Identifier}"

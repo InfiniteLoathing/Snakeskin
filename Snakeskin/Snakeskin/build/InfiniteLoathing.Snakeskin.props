@@ -1,13 +1,5 @@
 ﻿<Project>
     <PropertyGroup>
-        <Compile Condition="'$(CompileExports)' == ''">false</Compile>
+        <CompileExports Condition="'$(CompileExports)' == ''">true</CompileExports>
     </PropertyGroup>
-    <ItemGroup>
-        <AdditionalFiles Include="**\*.snakeskin.cs" />
-        <Compile Remove="**\*.snakeskin.cs"
-                 Condition="'$(CompileExports)' != 'true'" />
-        <None Include="**\*.snakeskin.cs"
-              Exclude="@(None)"
-              Condition="'$(CompileExports)' != 'true'" />
-    </ItemGroup>
 </Project>

@@ -13,7 +13,7 @@ namespace InfiniteLoathing.Snakeskin
         private readonly TemplateRootNode _templateRoot = new TemplateRootNode();
         private readonly Stack<ParentNode> _hierarchy = new Stack<ParentNode>();
         
-        public GeneratorTemplateWalker(string filePath) : base(filePath)
+        public GeneratorTemplateWalker()
         {
             _hierarchy.Push(_templateRoot);
         }

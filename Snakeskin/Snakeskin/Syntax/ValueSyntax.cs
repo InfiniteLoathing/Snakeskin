@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace InfiniteLoathing.Snakeskin.Syntax
 {
-    internal class ValueSyntax : ITemplateValue
+    internal class ValueSyntax : IValueDefinition
     {
         public bool IsObject { get; }
         public ValueParentSyntax Parent { get; }

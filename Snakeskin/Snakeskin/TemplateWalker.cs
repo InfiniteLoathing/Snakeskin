@@ -15,15 +15,13 @@ namespace InfiniteLoathing.Snakeskin
 {
     internal abstract class TemplateWalker : CSharpSyntaxWalker, ITemplateDiagnosticHandler
     {
-        private readonly string _filePath;
         private readonly TemplateScope _templateScope;
         private readonly Stack<bool> _regionIsDirective = new Stack<bool>();
         
         private int _unprocessedTextStart;
 
-        protected TemplateWalker(string filePath) : base(SyntaxWalkerDepth.StructuredTrivia)
+        protected TemplateWalker() : base(SyntaxWalkerDepth.StructuredTrivia)
         {
-            _filePath = filePath;
             _templateScope = new TemplateScope(this);
             _unprocessedTextStart = 0;
         }
@@ -59,27 +57,23 @@ namespace InfiniteLoathing.Snakeskin
                 filePosition: regionTextTrivia.First().GetLocation().SourceSpan.Start,
                 diagnosticHandler: this);
 
-            // low: Reorganize this
-            switch (parser.ParseDirectiveKind())
+            switch (parser.ParseDirectiveKind(out var directiveTextSpan))
             {
                 case DirectiveSyntaxKind.Replace:
                     _regionIsDirective.Push(true);
-                    var replaceSyntax = parser.ParseReplace();
-                    // todo: Consider wrapping this logic into EnterDirectiveRegion
+                    var replaceSyntax = parser.ParseReplace(directiveTextSpan);
                     var replaceNode = _templateScope.AddReplace(replaceSyntax);
                     this.EnterDirectiveRegion(replaceNode);
                     break;
                 case DirectiveSyntaxKind.Remove:
                     _regionIsDirective.Push(true);
                     var removeSyntax = parser.ParseRemove();
-                    // todo: Consider wrapping this logic into EnterDirectiveRegion
                     var removeNode = _templateScope.AddRemove(removeSyntax);
                     this.EnterDirectiveRegion(removeNode);
                     break;
                 case DirectiveSyntaxKind.ForEach:
                     _regionIsDirective.Push(true);
                     var forEachSyntax = parser.ParseForEach();
-                    // todo: Consider wrapping this logic into EnterDirectiveRegion
                     var foreachNode = _templateScope.AddForEach(forEachSyntax);
                     this.EnterDirectiveRegion(foreachNode);
                     break;
@@ -104,7 +98,6 @@ namespace InfiniteLoathing.Snakeskin
             var directiveLineSpan = this.GetLineSpan(node);
             this.ProcessTextSection(node.SyntaxTree.GetText(), directiveLineSpan.Start);
             _unprocessedTextStart = directiveLineSpan.End;
-            // todo: Consider wrapping this logic into ExitDirectiveRegion
             _templateScope.ExitScope();
             this.ExitDirectiveRegion();
         }

@@ -12,10 +12,35 @@ namespace InfiniteLoathing.Snakeskin
     {
         public void Initialize(IncrementalGeneratorInitializationContext context)
         {
-            var templates = context.AdditionalTextsProvider
-                .Where(x => x.IsSnakeskinTemplate());
+            var syntaxTreeTemplates = context.SyntaxProvider
+                .CreateSyntaxProvider(TemplateChecker.IsTemplate, (x, _) => x.Node);
+            var additionalTextTemplates = context.AdditionalTextsProvider.Where(TemplateChecker.IsTemplate);
+
+            context.RegisterSourceOutput(additionalTextTemplates, WriteTemplate);
+            context.RegisterSourceOutput(syntaxTreeTemplates, WriteTemplate);
+        }
+
+        private static void WriteTemplate(SourceProductionContext context, SyntaxNode root)
+        {
+            if (!RootValidator.RegionsAreValid(root))
+            {
+                return;
+            }
             
-            context.RegisterSourceOutput(templates, WriteTemplate);
+            var visitor = new GeneratorTemplateWalker();
+
+            try
+            {
+                visitor.Visit(root);
+                var createdTemplate = visitor.CreateTemplate(
+                    @namespace: "Snakeskin.Templates",
+                    className: TemplateChecker.GetFileNameWithoutExtension(root.SyntaxTree.FilePath));
+                var templateRender = createdTemplate.Render();
+                context.AddSource(Path.GetFileName(root.SyntaxTree.FilePath), templateRender);
+            }
+            catch (InvalidTemplateException)
+            {
+            }
         }
 
         private static void WriteTemplate(SourceProductionContext context, AdditionalText template)
@@ -39,14 +64,14 @@ namespace InfiniteLoathing.Snakeskin
                 return;
             }
             
-            var visitor = new GeneratorTemplateWalker(template.Path);
+            var visitor = new GeneratorTemplateWalker();
 
             try
             {
                 visitor.Visit(root);
                 var createdTemplate = visitor.CreateTemplate(
                     @namespace: "Snakeskin.Templates",
-                    className: template.GetSnakeskinFileName());
+                    className: TemplateChecker.GetFileNameWithoutExtension(template.Path));
                 var templateRender = createdTemplate.Render();
                 context.AddSource(Path.GetFileName(template.Path), templateRender);
             }

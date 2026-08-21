@@ -1,8 +1,6 @@
 ﻿using System.Collections.Immutable;
-using System.Linq;
 using InfiniteLoathing.Snakeskin.Diagnostics;
 using InfiniteLoathing.Snakeskin.Exceptions;
-using InfiniteLoathing.Snakeskin.Extensions;
 using InfiniteLoathing.Snakeskin.Syntax;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -17,15 +15,38 @@ namespace InfiniteLoathing.Snakeskin
 
         public override void Initialize(AnalysisContext context)
         {
-            var t = context.MinimumReportedSeverity;
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
+            context.RegisterSyntaxTreeAction(AnalyzeSyntaxTree);
             context.RegisterAdditionalFileAction(AnalyzeTemplate);
+        }
+
+        private static void AnalyzeSyntaxTree(SyntaxTreeAnalysisContext context)
+        {
+            if (!TemplateChecker.IsTemplate(context.Tree))
+            {
+                return;
+            }
+            
+            if (!context.Tree.TryGetRoot(out var root))
+            {
+                return;
+            }
+
+            var visitor = new AnalyzerTemplateWalker(context);
+
+            try
+            {
+                visitor.Visit(root);
+            }
+            catch (InvalidTemplateException)
+            {
+            }
         }
 
         private static void AnalyzeTemplate(AdditionalFileAnalysisContext context)
         {
-            if (!context.AdditionalFile.IsSnakeskinTemplate())
+            if (!TemplateChecker.IsTemplate(context.AdditionalFile))
             {
                 return;
             }
@@ -37,32 +58,23 @@ namespace InfiniteLoathing.Snakeskin
                 return;
             }
 
-            var syntaxRoot = context.Compilation.SyntaxTrees
-                .SingleOrDefault(x => x.FilePath == context.AdditionalFile.Path)?
-                .GetRoot();
-
-            var isCompilationSyntaxRoot = syntaxRoot != null;
-
-            if (!isCompilationSyntaxRoot
-                && !CSharpSyntaxTree
+            if (!CSharpSyntaxTree
                     .ParseText(sourceText, cancellationToken: context.CancellationToken)
-                    .TryGetRoot(out syntaxRoot))
+                    .TryGetRoot(out var root))
             {
                 return;
             }
 
-            if (!RootValidator.RegionsAreValid(syntaxRoot))
+            if (!RootValidator.RegionsAreValid(root))
             {
                 return;
             }
-            
-            var visitor = isCompilationSyntaxRoot
-                ? new AnalyzerTemplateWalker(context, syntaxRoot.SyntaxTree)
-                : new AnalyzerTemplateWalker(context);
+
+            var visitor = new AnalyzerTemplateWalker(context);
 
             try
             {
-                visitor.Visit(syntaxRoot);
+                visitor.Visit(root);
             }
             catch (InvalidTemplateException)
             {

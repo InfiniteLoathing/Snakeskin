@@ -8,24 +8,22 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
         private const string Category = "Templating";
         
         #if DEBUG
-        private const DiagnosticSeverity InfoSeverity = DiagnosticSeverity.Warning;
         private const DiagnosticSeverity ErrorSeverity = DiagnosticSeverity.Warning;
         #else
-        private const DiagnosticSeverity InfoSeverity = DiagnosticSeverity.Info;
         private const DiagnosticSeverity ErrorSeverity = DiagnosticSeverity.Error;
         #endif
 
         public static readonly DiagnosticDescriptor ValueReplacement = new DiagnosticDescriptor(
             id: "SNKS000",
-            title: "Value Replacement",
-            messageFormat: "Value Replacement: {0}",
+            title: "Value replacement",
+            messageFormat: "Value replacement: {0}",
             category: Category,
-            defaultSeverity: InfoSeverity,
+            defaultSeverity: DiagnosticSeverity.Info,
             isEnabledByDefault: true);
 
         public static readonly DiagnosticDescriptor InvalidDirective = new DiagnosticDescriptor(
             id: "SNKS001",
-            title: "Invalid Directive",
+            title: "Invalid directive",
             messageFormat: "Invalid directive name: {0}",
             category: Category,
             defaultSeverity: ErrorSeverity,
@@ -33,7 +31,7 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
 
         public static readonly DiagnosticDescriptor UnexpectedToken = new DiagnosticDescriptor(
             id: "SNKS002",
-            title: "Unexpected Token",
+            title: "Unexpected token",
             messageFormat: "Unexpected token: {0}",
             category: Category,
             defaultSeverity: ErrorSeverity,
@@ -41,7 +39,7 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
 
         public static readonly DiagnosticDescriptor ExpectedArguments = new DiagnosticDescriptor(
             id: "SNKS003",
-            title: "Expected Arguments",
+            title: "Expected arguments",
             messageFormat: "{0} directive requires arguments",
             category: Category,
             defaultSeverity: ErrorSeverity,
@@ -49,7 +47,7 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
 
         public static readonly DiagnosticDescriptor InvalidArgument = new DiagnosticDescriptor(
             id: "SNKS004",
-            title: "Invalid Argument",
+            title: "Invalid argument",
             messageFormat: "{0} directive does not accept arguments of type {1}",
             category: Category,
             defaultSeverity: ErrorSeverity,
