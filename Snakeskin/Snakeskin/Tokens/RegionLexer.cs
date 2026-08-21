@@ -31,6 +31,8 @@ namespace InfiniteLoathing.Snakeskin.Tokens
 
         private char Char => _text[this.Position];
 
+        private char PreviousChar => _text[this.Position - 1];
+
         private bool IsComplete => this.Position >= _text.Length;
 
         public RegionLexer(ReadOnlySpan<char> text, int filePosition)
@@ -140,10 +142,27 @@ namespace InfiniteLoathing.Snakeskin.Tokens
         {
             var start = this.Position;
             this.Position++;
-            // low: Allow escaping quotes?
-            this.Current = this.TakeThrough('"')
-                ? this.CreateToken(TokenKind.QuotedString, start, this.Position - start)
-                : this.CreateToken(TokenKind.OpenQuotedString, start, this.Position - start);
+
+            do
+            {
+                if (this.TakeUntil('"'))
+                {
+                    if (this.PreviousChar == '\\')
+                    {
+                        this.Position++;
+                        continue;
+                    }
+
+                    this.Position++;
+                    break;
+                }
+
+                this.Current = this.CreateToken(TokenKind.OpenQuotedString, start, this.Position - start);
+                return;
+
+            } while (!this.IsComplete);
+
+            this.Current = this.CreateToken(TokenKind.QuotedString, start, this.Position - start);
         }
 
         private void TakeString()
@@ -189,13 +208,12 @@ namespace InfiniteLoathing.Snakeskin.Tokens
             }
         }
 
-        private bool TakeThrough(char expected)
+        private bool TakeUntil(char expected)
         {
             while (!this.IsComplete)
             {
                 if (this.Char == expected)
                 {
-                    this.Position++;
                     return true;
                 }
 

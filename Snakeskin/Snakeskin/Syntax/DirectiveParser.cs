@@ -9,6 +9,8 @@ namespace InfiniteLoathing.Snakeskin.Syntax
 {
     internal ref struct DirectiveParser
     {
+        private const string EscapedQuote = "\\\"";
+        private const string Quote = "\"";
         private RegionLexer _lexer;
         private readonly ITemplateDiagnosticHandler _diagnosticHandler;
         
@@ -172,7 +174,9 @@ namespace InfiniteLoathing.Snakeskin.Syntax
                 identifier.CharSpan.ToString(),
                 isArray,
                 hasReplacementText
-                    ? quotedReplacementText.Slice(1, quotedReplacementText.CharSpan.Length - 2).ToString()
+                    ? quotedReplacementText.Slice(1, quotedReplacementText.CharSpan.Length - 2)
+                        .ToString()
+                        .Replace(EscapedQuote, Quote)
                     : null,
                 textSpan: TextSpan.FromBounds(start, _lexer.Current.TextSpan.End));
             return true;
