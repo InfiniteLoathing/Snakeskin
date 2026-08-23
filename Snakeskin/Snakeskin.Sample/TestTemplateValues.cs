@@ -1,4 +1,5 @@
-﻿using Snakeskin.Templates;
+﻿#if RENDER_TEMPLATE
+using Snakeskin.Templates;
 
 namespace InfiniteLoathing.Snakeskin.Sample
 {
@@ -13,3 +14,4 @@ namespace InfiniteLoathing.Snakeskin.Sample
         public TestTemplate.IProperties[] Properties { get; set; }
     }
 }
+#endif

@@ -1,4 +1,5 @@
-﻿using Snakeskin.Templates;
+﻿#if RENDER_TEMPLATE
+using Snakeskin.Templates;
 
 namespace InfiniteLoathing.Snakeskin.Sample
 {
@@ -7,3 +8,4 @@ namespace InfiniteLoathing.Snakeskin.Sample
         public string StringLiteral { get; set; }
     }
 }
+#endif

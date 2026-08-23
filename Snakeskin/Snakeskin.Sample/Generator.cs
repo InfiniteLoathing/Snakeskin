@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
+﻿#if RENDER_TEMPLATE
+using Microsoft.CodeAnalysis;
 using Snakeskin.Templates;
 
 namespace InfiniteLoathing.Snakeskin.Sample
@@ -43,3 +44,4 @@ namespace InfiniteLoathing.Snakeskin.Sample
         }
     }
 }
+#endif

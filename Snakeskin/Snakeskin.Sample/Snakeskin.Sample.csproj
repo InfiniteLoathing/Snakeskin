@@ -6,6 +6,7 @@
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
         <RootNamespace>InfiniteLoathing.Snakeskin.Sample</RootNamespace>
         <CompileExports Condition=" '$(Configuration)' == 'Release'">false</CompileExports>
+        <DefineConstants>$(DefineConstants);RENDER_TEMPLATE</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup>

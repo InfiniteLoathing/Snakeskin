@@ -5,9 +5,8 @@ using System.Linq;
 
 namespace InfiniteLoathing.Snakeskin.Templating
 {
-    internal class Template : ITemplate
+    internal class ObjectDefinitionTemplate : ITemplate
     {
-        private TemplateRootNode Root { get; }
 
         private ImmutableArray<ValueNode> RequiredValues { get; }
 
@@ -15,13 +14,8 @@ namespace InfiniteLoathing.Snakeskin.Templating
 
         private string ClassName { get; }
 
-        public Template(
-            TemplateRootNode root,
-            ImmutableArray<ValueNode> requiredValues,
-            string @namespace,
-            string className)
+        public ObjectDefinitionTemplate(ImmutableArray<ValueNode> requiredValues, string @namespace, string className)
         {
-            this.Root = root;
             this.RequiredValues = requiredValues;
             this.Namespace = @namespace;
             this.ClassName = className;
@@ -50,20 +44,15 @@ namespace InfiniteLoathing.Snakeskin.Templating
                 {
                     requiredValue.RenderProperty(indentedWriter);
                 }
+
                 indentedWriter.Indent--;
                 indentedWriter.WriteLine("}");
-                
+
                 indentedWriter.WriteLine("public static string Render(ITemplateValues values)");
                 indentedWriter.WriteLine("{");
                 indentedWriter.Indent++;
-                foreach (var requiredValue in this.RequiredValues)
-                {
-                    indentedWriter.WriteLine(
-                        $"var {requiredValue.GetSourceVar()} = values.{requiredValue.Identifier};");
-                }
-                indentedWriter.WriteLine($"var {SourceConstants.StringBuilder} = new System.Text.StringBuilder();");
-                this.Root.Render(indentedWriter);
-                indentedWriter.WriteLine($"return {SourceConstants.StringBuilder}.ToString();");
+                indentedWriter.WriteLine(
+                    "throw new System.InvalidOperationException(\"Snakeskin template did not generate correctly\");");
                 indentedWriter.Indent--;
                 indentedWriter.WriteLine("}");
                 indentedWriter.Indent--;
