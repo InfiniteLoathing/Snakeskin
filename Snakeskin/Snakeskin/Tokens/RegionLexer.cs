@@ -143,26 +143,35 @@ namespace InfiniteLoathing.Snakeskin.Tokens
             var start = this.Position;
             this.Position++;
 
-            do
-            {
-                if (this.TakeUntil('"'))
-                {
-                    if (this.PreviousChar == '\\')
-                    {
-                        this.Position++;
-                        continue;
-                    }
+            var escaped = false;
 
+            while (!this.IsComplete)
+            {
+                if (escaped)
+                {
+                    escaped = false;
                     this.Position++;
-                    break;
+                    continue;
                 }
 
-                this.Current = this.CreateToken(TokenKind.OpenQuotedString, start, this.Position - start);
-                return;
-
-            } while (!this.IsComplete);
-
-            this.Current = this.CreateToken(TokenKind.QuotedString, start, this.Position - start);
+                switch (this.Char)
+                {
+                    case '\\':
+                        escaped = true;
+                        this.Position++;
+                        continue;
+                    case '"':
+                        this.Position++;
+                        this.Current = this.CreateToken(TokenKind.QuotedString, start, this.Position - start);
+                        return;
+                    default:
+                        escaped = false;
+                        this.Position++;
+                        continue;
+                }
+            }
+            
+            this.Current = this.CreateToken(TokenKind.OpenQuotedString, start, this.Position - start);
         }
 
         private void TakeString()
@@ -175,11 +184,11 @@ namespace InfiniteLoathing.Snakeskin.Tokens
 
             if (span.SequenceEqual(Keywords.In))
             {
-                this.Current = CreateToken(TokenKind.In, span, start, length);
+                this.Current = this.CreateToken(TokenKind.In, span, start, length);
                 return;
             }
             
-            this.Current = CreateToken(TokenKind.String, span, start, length);
+            this.Current = this.CreateToken(TokenKind.String, span, start, length);
         }
 
         private Token CreateToken(TokenKind kind, ReadOnlySpan<char> slice, int start, int length) =>
@@ -206,21 +215,6 @@ namespace InfiniteLoathing.Snakeskin.Tokens
             {
                 this.Position++;
             }
-        }
-
-        private bool TakeUntil(char expected)
-        {
-            while (!this.IsComplete)
-            {
-                if (this.Char == expected)
-                {
-                    return true;
-                }
-
-                this.Position++;
-            }
-
-            return false;
         }
 
         private bool TakeUntilNot(CharacterKind kind)

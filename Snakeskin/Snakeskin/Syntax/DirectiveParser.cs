@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Immutable;
+using System.Text.RegularExpressions;
 using InfiniteLoathing.Snakeskin.Diagnostics;
 using InfiniteLoathing.Snakeskin.Extensions;
 using InfiniteLoathing.Snakeskin.Tokens;
@@ -9,8 +10,7 @@ namespace InfiniteLoathing.Snakeskin.Syntax
 {
     internal ref struct DirectiveParser
     {
-        private const string EscapedQuote = "\\\"";
-        private const string Quote = "\"";
+        private static readonly Regex EscapeRegex = new Regex(@"\\(.)", RegexOptions.Compiled);
         private RegionLexer _lexer;
         private readonly ITemplateDiagnosticHandler _diagnosticHandler;
         
@@ -174,12 +174,12 @@ namespace InfiniteLoathing.Snakeskin.Syntax
                 identifier.CharSpan.ToString(),
                 isArray,
                 hasReplacementText
-                    ? quotedReplacementText.Slice(1, quotedReplacementText.CharSpan.Length - 2)
-                        .ToString()
-                        .Replace(EscapedQuote, Quote)
+                    ? Unescape(quotedReplacementText.Slice(1, quotedReplacementText.CharSpan.Length - 2).ToString())
                     : null,
                 textSpan: TextSpan.FromBounds(start, _lexer.Current.TextSpan.End));
             return true;
         }
+
+        private static string Unescape(string value) => EscapeRegex.Replace(value, "$1");
     }
 }
