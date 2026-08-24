@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using InfiniteLoathing.Snakeskin.Diagnostics;
 using InfiniteLoathing.Snakeskin.Templating;
 using Microsoft.CodeAnalysis;
@@ -32,5 +33,13 @@ namespace InfiniteLoathing.Snakeskin
 
         public override void Handle(ITemplateDiagnostic diagnostic, TextSpan textSpan) =>
             _reportDiagnostic(diagnostic.CreateDiagnostic(_locator.Locate(textSpan)));
+
+        public override void Handle(
+            ITemplateDiagnostic diagnostic,
+            TextSpan textSpan,
+            IEnumerable<TextSpan> additionalTextSpans) =>
+            _reportDiagnostic(diagnostic.CreateDiagnostic(
+                _locator.Locate(textSpan),
+                _locator.Locate(additionalTextSpans)));
     }
 }

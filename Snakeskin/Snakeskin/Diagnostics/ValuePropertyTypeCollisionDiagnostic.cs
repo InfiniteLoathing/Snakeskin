@@ -1,4 +1,5 @@
-﻿using InfiniteLoathing.Snakeskin.Extensions;
+﻿using System.Collections.Generic;
+using InfiniteLoathing.Snakeskin.Extensions;
 using InfiniteLoathing.Snakeskin.Syntax;
 using InfiniteLoathing.Snakeskin.Templating;
 using Microsoft.CodeAnalysis;
@@ -17,11 +18,11 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
             _node = node;
         }
 
-        public Diagnostic CreateDiagnostic(Location location) =>
+        public Diagnostic CreateDiagnostic(Location location, IEnumerable<Location> additionalLocations = null) =>
             Diagnostic.Create(
                 descriptor: DiagnosticDescriptors.ValuePropertyTypeCollision,
                 location: location,
-                //additionalLocations: new[] { _node.Location },
+                additionalLocations: additionalLocations,
                 messageArgs: new object[]
                 {
                     _syntax.Identifier,

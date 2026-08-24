@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using System.Collections.Generic;
+using Microsoft.CodeAnalysis;
 
 namespace InfiniteLoathing.Snakeskin.Diagnostics
 {
@@ -13,9 +14,11 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
             DirectiveType = directiveType;
         }
 
-        public Diagnostic CreateDiagnostic(Location location) => Diagnostic.Create(
+        public Diagnostic CreateDiagnostic(Location location, IEnumerable<Location> additionalLocations = null) =>
+            Diagnostic.Create(
                 descriptor: DiagnosticDescriptors.ExpectedArguments,
                 location: location,
+                additionalLocations: additionalLocations,
                 messageArgs: DirectiveType);
     }
 }

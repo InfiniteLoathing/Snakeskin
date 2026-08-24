@@ -7,7 +7,7 @@ namespace InfiniteLoathing.Snakeskin
 {
     internal class GeneratorTemplateWalker : TemplateWalker
     {
-        private readonly TemplateRootNode _templateRoot = new TemplateRootNode();
+        private readonly ParentNode _templateRoot = new ParentNode();
         private readonly Stack<ParentNode> _hierarchy = new Stack<ParentNode>();
         private bool _isValid = true;
         
@@ -27,6 +27,8 @@ namespace InfiniteLoathing.Snakeskin
         }
 
         public override void Handle(ITemplateDiagnostic _, TextSpan __) => _isValid = false;
+
+        public override void Handle(ITemplateDiagnostic _, TextSpan __, IEnumerable<TextSpan> ___) => _isValid = false;
 
         protected override void EnterDirectiveRegion(ParentNode node)
         {

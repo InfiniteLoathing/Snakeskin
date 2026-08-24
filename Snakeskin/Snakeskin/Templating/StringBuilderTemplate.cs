@@ -7,7 +7,7 @@ namespace InfiniteLoathing.Snakeskin.Templating
 {
     internal class StringBuilderTemplate : ITemplate
     {
-        private TemplateRootNode Root { get; }
+        private ParentNode Root { get; }
 
         private ImmutableArray<ValueNode> RequiredValues { get; }
 
@@ -16,7 +16,7 @@ namespace InfiniteLoathing.Snakeskin.Templating
         private string ClassName { get; }
 
         public StringBuilderTemplate(
-            TemplateRootNode root,
+            ParentNode root,
             ImmutableArray<ValueNode> requiredValues,
             string @namespace,
             string className)

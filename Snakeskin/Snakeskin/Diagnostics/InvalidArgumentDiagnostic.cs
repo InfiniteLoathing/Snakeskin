@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using System.Collections.Generic;
+using Microsoft.CodeAnalysis;
 
 namespace InfiniteLoathing.Snakeskin.Diagnostics
 {
@@ -17,7 +18,7 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
             IsArray = isArray;
         }
 
-        public Diagnostic CreateDiagnostic(Location location)
+        public Diagnostic CreateDiagnostic(Location location, IEnumerable<Location> additionalLocations = null)
         {
             var type = IsObject ? "Object" : "String";
             if (IsArray)
@@ -28,6 +29,7 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
             return Diagnostic.Create(
                 descriptor: DiagnosticDescriptors.InvalidArgument,
                 location: location,
+                additionalLocations: additionalLocations,
                 DirectiveName, type);
         }
     }

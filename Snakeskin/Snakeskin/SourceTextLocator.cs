@@ -1,4 +1,6 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
 namespace InfiniteLoathing.Snakeskin
@@ -19,5 +21,7 @@ namespace InfiniteLoathing.Snakeskin
             var offsetSpan = new TextSpan(textSpan.Start, textSpan.Length);
             return Location.Create(_filePath, offsetSpan, _sourceText.Lines.GetLinePositionSpan(offsetSpan));
         }
+
+        public IEnumerable<Location> Locate(IEnumerable<TextSpan> textSpans) => textSpans.Select(this.Locate);
     }
 }

@@ -102,7 +102,14 @@ namespace InfiniteLoathing.Snakeskin
             this.ExitDirectiveRegion();
         }
 
-        public abstract void Handle(ITemplateDiagnostic diagnostic, TextSpan textSpan);
+        public abstract void Handle(
+            ITemplateDiagnostic diagnostic,
+            TextSpan textSpan);
+
+        public abstract void Handle(
+            ITemplateDiagnostic diagnostic,
+            TextSpan textSpan,
+            IEnumerable<TextSpan> additionalTextSpans);
 
         protected virtual void EnterDirectiveRegion(ParentNode directiveNode)
         {
