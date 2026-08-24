@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using InfiniteLoathing.Snakeskin.Diagnostics;
-using InfiniteLoathing.Snakeskin.Exceptions;
 using InfiniteLoathing.Snakeskin.Templating;
 using Microsoft.CodeAnalysis.Text;
 
@@ -21,7 +20,7 @@ namespace InfiniteLoathing.Snakeskin
         {
             if (_isValid)
             {
-                return new Template(_templateRoot, this.SortRequiredValues(), @namespace, className);
+                return new StringBuilderTemplate(_templateRoot, this.SortRequiredValues(), @namespace, className);
             }
             
             return new ObjectDefinitionTemplate(this.SortRequiredValues(), @namespace, className);

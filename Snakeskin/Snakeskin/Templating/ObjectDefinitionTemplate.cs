@@ -32,23 +32,29 @@ namespace InfiniteLoathing.Snakeskin.Templating
                 indentedWriter.WriteLine($"internal class {this.ClassName}Template");
                 indentedWriter.WriteLine("{");
                 indentedWriter.Indent++;
-                foreach (var requiredValue in this.RequiredValues.Where(x => x.IsObject))
+                if (this.RequiredValues.Any())
                 {
-                    requiredValue.RenderInterface(indentedWriter);
+                    foreach (var requiredValue in this.RequiredValues.Where(x => x.IsObject))
+                    {
+                        requiredValue.RenderInterface(indentedWriter);
+                    }
+
+                    indentedWriter.WriteLine("public interface ITemplateValues");
+                    indentedWriter.WriteLine("{");
+                    indentedWriter.Indent++;
+                    foreach (var requiredValue in this.RequiredValues)
+                    {
+                        requiredValue.RenderProperty(indentedWriter);
+                    }
+                    indentedWriter.Indent--;
+                    indentedWriter.WriteLine("}");
+                    indentedWriter.WriteLine("public static string Render(ITemplateValues values)");
+                }
+                else
+                {
+                    indentedWriter.WriteLine("public static string Render()");
                 }
 
-                indentedWriter.WriteLine($"public interface ITemplateValues");
-                indentedWriter.WriteLine("{");
-                indentedWriter.Indent++;
-                foreach (var requiredValue in this.RequiredValues)
-                {
-                    requiredValue.RenderProperty(indentedWriter);
-                }
-
-                indentedWriter.Indent--;
-                indentedWriter.WriteLine("}");
-
-                indentedWriter.WriteLine("public static string Render(ITemplateValues values)");
                 indentedWriter.WriteLine("{");
                 indentedWriter.Indent++;
                 indentedWriter.WriteLine(
