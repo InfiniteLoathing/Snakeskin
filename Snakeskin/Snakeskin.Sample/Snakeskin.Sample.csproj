@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <IsRoslynComponent>true</IsRoslynComponent>
+        <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+        <RootNamespace>InfiniteLoathing.Snakeskin.Sample</RootNamespace>
+        <CompileExports Condition=" '$(Configuration)' == 'Release'">false</CompileExports>
+        <DefineConstants>$(DefineConstants);RENDER_TEMPLATE</DefineConstants>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Snakeskin\Snakeskin.csproj">
+            <OutputItemType>Analyzer</OutputItemType>
+            <PrivateAssets>all</PrivateAssets>
+            <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+        </ProjectReference>
+        
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
+    </ItemGroup>
+
+    <Import Project="..\Snakeskin\build\InfiniteLoathing.Snakeskin.props" />
+    <Import Project="..\Snakeskin\build\InfiniteLoathing.Snakeskin.targets" />
+
+</Project>

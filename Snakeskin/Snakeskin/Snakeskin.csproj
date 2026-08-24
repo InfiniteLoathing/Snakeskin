@@ -1,0 +1,55 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <UseTestFeed>true</UseTestFeed>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <IsRoslynComponent>true</IsRoslynComponent>
+        <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+        <RepositoryURL>https://github.com/InfiniteLoathing/Snakeskin.git</RepositoryURL>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageId>InfiniteLoathing.Snakeskin</PackageId>
+        <RootNamespace>InfiniteLoathing.Snakeskin</RootNamespace>
+        <Version>0.0.0.1</Version>
+        <Authors>Scott Sanderson</Authors>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+        <NoWarn>$(NoWarn);NU5128</NoWarn>
+        <DevelopmentDependency>true</DevelopmentDependency>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <AdditionalFiles Include="AnalyzerReleases.Shipped.md" Visible="false"/>
+        <AdditionalFiles Include="AnalyzerReleases.Unshipped.md" Visible="false" />
+    </ItemGroup>
+    
+    <ItemGroup>
+        <None Include="$(OutputPath)\$(AssemblyName).dll">
+            <Pack>true</Pack>
+            <PackagePath>analyzers/dotnet/cs</PackagePath>
+            <Visible>false</Visible>
+        </None>
+        <None Include="build\InfiniteLoathing.Snakeskin.props">
+            <Pack>true</Pack>
+            <PackagePath>build</PackagePath>
+        </None>
+        <None Include="build\InfiniteLoathing.Snakeskin.targets">
+          <Pack>true</Pack>
+          <PackagePath>build</PackagePath>
+        </None>
+    </ItemGroup>
+
+    <Target Name="PushNuGetPackage"
+            AfterTargets="Pack"
+            Condition="'$(PushOnBuild)' == 'true' AND '$(Configuration)' == 'Release'">
+        <ItemGroup>
+            <_PackagesToPush Include="$(PackageOutputPath)$(PackageId).$(PackageVersion).nupkg" />
+        </ItemGroup>
+        <Message Importance="High"
+                 Text="Attempting to push NuGet package $(PackageId) $(PackageVersion) to source '$(NuGetPushSource)'." />
+        <Exec Command='dotnet nuget push "%(_PackagesToPush.Identity)" --source "github" --skip-duplicate' />
+    </Target>
+
+</Project>

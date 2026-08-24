@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Snakeskin", "Snakeskin\Snakeskin.csproj", "{CA01D6BE-D181-434D-8D75-3762F002D7EA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Snakeskin.Sample", "Snakeskin.Sample\Snakeskin.Sample.csproj", "{D5FFFB69-B633-4F6D-A05D-31E4634BC117}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Snakeskin.Target", "Snakeskin.Target\Snakeskin.Target.csproj", "{4CFFF7F5-96C0-4841-85DD-B9BA0A564504}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CA01D6BE-D181-434D-8D75-3762F002D7EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA01D6BE-D181-434D-8D75-3762F002D7EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA01D6BE-D181-434D-8D75-3762F002D7EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA01D6BE-D181-434D-8D75-3762F002D7EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D5FFFB69-B633-4F6D-A05D-31E4634BC117}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D5FFFB69-B633-4F6D-A05D-31E4634BC117}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D5FFFB69-B633-4F6D-A05D-31E4634BC117}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D5FFFB69-B633-4F6D-A05D-31E4634BC117}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4CFFF7F5-96C0-4841-85DD-B9BA0A564504}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4CFFF7F5-96C0-4841-85DD-B9BA0A564504}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4CFFF7F5-96C0-4841-85DD-B9BA0A564504}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4CFFF7F5-96C0-4841-85DD-B9BA0A564504}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
