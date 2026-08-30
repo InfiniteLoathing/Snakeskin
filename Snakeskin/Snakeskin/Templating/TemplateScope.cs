@@ -34,10 +34,10 @@ namespace InfiniteLoathing.Snakeskin.Templating
             
             foreach (var value in replaceDirectiveSyntax.Values)
             {
-                if (value.IsObject || value.IsArray)
+                if (value.Type != ValueType.String || value.IsArray)
                 {
                     _diagnosticHandler.Handle(
-                        new InvalidArgumentDiagnostic(Keywords.Remove, value.IsObject, value.IsArray), value.TextSpan);
+                        new InvalidArgumentDiagnostic(Keywords.Remove, value), value.TextSpan);
                     continue;
                 }
 
@@ -63,7 +63,7 @@ namespace InfiniteLoathing.Snakeskin.Templating
             if (iterator.IsArray)
             {
                 _diagnosticHandler.Handle(
-                    new InvalidArgumentDiagnostic(Keywords.Remove, iterator.IsObject, iterator.IsArray),
+                    new InvalidArgumentDiagnostic(Keywords.Remove, iterator),
                     iterator.TextSpan);
                 this.PushScope(DirectiveScope.Empty);
                 return new ParentNode();
@@ -73,7 +73,7 @@ namespace InfiniteLoathing.Snakeskin.Templating
             if (!array.IsArray)
             {
                 _diagnosticHandler.Handle(
-                    new InvalidArgumentDiagnostic(Keywords.Remove, array.IsObject, array.IsArray), array.TextSpan);
+                    new InvalidArgumentDiagnostic(Keywords.Remove, array), array.TextSpan);
                 this.PushScope(DirectiveScope.Empty);
                 return new ParentNode();
             }
@@ -83,7 +83,7 @@ namespace InfiniteLoathing.Snakeskin.Templating
             var iteratorNode = new DerivedObjectValueNode(iterator.Identifier, iterator.TextSpan, arrayNode);
             var values = new Dictionary<string, ValueNode> { { iterator.Identifier, iteratorNode } }
                 .ToImmutableDictionary();
-            var replacements = iterator.IsObject
+            var replacements = iterator.Type == ValueType.String
                 ? ImmutableDictionary<string, ValueNode>.Empty
                 : new Dictionary<string, ValueNode> { { iterator.ReplacementText, iteratorNode } }
                     .ToImmutableDictionary();
@@ -169,7 +169,7 @@ namespace InfiniteLoathing.Snakeskin.Templating
                 identifier: valueSyntax.Identifier,
                 textSpan: valueSyntax.TextSpan,
                 isArray: valueSyntax.IsArray,
-                isObject: valueSyntax.IsObject);
+                type: valueSyntax.Type);
             
             _values.Add(node.Identifier, node);           
             return true;
@@ -195,7 +195,7 @@ namespace InfiniteLoathing.Snakeskin.Templating
                     continue;
                 }
 
-                var matches = parentNode.IsObject && !parentNode.IsArray;
+                var matches = parentNode.Type == ValueType.Object && !parentNode.IsArray;
                 if (!matches)
                 {
                     _diagnosticHandler.Handle(
@@ -208,7 +208,7 @@ namespace InfiniteLoathing.Snakeskin.Templating
             
             if(_values.TryGetValue(valueParentSyntax.Identifier, out parentNode))
             {
-                var matches = parentNode.IsObject && !parentNode.IsArray;
+                var matches = parentNode.Type == ValueType.Object && !parentNode.IsArray;
                 if (!matches)
                 {
                     _diagnosticHandler.Handle(
@@ -222,7 +222,7 @@ namespace InfiniteLoathing.Snakeskin.Templating
             parentNode = new ValueNode(
                 identifier: valueParentSyntax.Identifier,
                 textSpan: valueParentSyntax.TextSpan,
-                isObject: true);
+                type: ValueType.Object);
             _values.Add(parentNode.Identifier, parentNode);
             
             return true;

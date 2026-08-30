@@ -12,6 +12,8 @@ namespace InfiniteLoathing.Snakeskin.Tokens
                     return "@";
                 case TokenKind.Pound:
                     return "#";
+                case TokenKind.QuestionMark:
+                    return "?";
                 case TokenKind.Dot:
                     return ".";
                 case TokenKind.Colon:

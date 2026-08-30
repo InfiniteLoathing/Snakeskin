@@ -135,7 +135,7 @@ namespace InfiniteLoathing.Snakeskin.Syntax
         private bool TryParseValue(out ValueSyntax value)
         {
             var start = _lexer.Current.TextSpan.Start;
-            var isObject = this.Accept(TokenKind.Pound, out _);
+            var valueType = this.GetValueType();
 
             if (!this.Expect(TokenKind.String, out var identifier))
             {
@@ -147,7 +147,17 @@ namespace InfiniteLoathing.Snakeskin.Syntax
             Token parentObject = default;
             if (hasParentObject)
             {
-                isObject = false;
+                valueType = this.GetValueType();
+
+                if (valueType == ValueType.Object)
+                {
+                    _diagnosticHandler.Handle(
+                        diagnostic: new NestedObjectPropertyDiagnostic(),
+                        textSpan: TextSpan.FromBounds(start, _lexer.Current.TextSpan.End));
+                    value = null;
+                    return false;
+                }
+                
                 parentObject = identifier;
                 if (!this.Expect(TokenKind.String, out identifier))
                 {
@@ -167,7 +177,7 @@ namespace InfiniteLoathing.Snakeskin.Syntax
             }
 
             value = new ValueSyntax(
-                isObject,
+                valueType,
                 hasParentObject
                     ? new ValueParentSyntax(parentObject.CharSpan.ToString(), parentObject.TextSpan)
                     : null,
@@ -178,6 +188,21 @@ namespace InfiniteLoathing.Snakeskin.Syntax
                     : null,
                 textSpan: TextSpan.FromBounds(start, _lexer.Current.TextSpan.End));
             return true;
+        }
+
+        private ValueType GetValueType()
+        {
+            if (this.Accept(TokenKind.Pound, out _))
+            {
+                return ValueType.Object;
+            }
+
+            if (this.Accept(TokenKind.QuestionMark, out _))
+            {
+                return ValueType.Bool;
+            }
+
+            return ValueType.String;
         }
 
         private static string Unescape(string value) => EscapeRegex.Replace(value, "$1");

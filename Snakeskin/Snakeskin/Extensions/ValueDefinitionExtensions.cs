@@ -1,21 +1,22 @@
-﻿namespace InfiniteLoathing.Snakeskin.Extensions
-{
+﻿using System;
 
+namespace InfiniteLoathing.Snakeskin.Extensions
+{
     internal static class ValueDefinitionExtensions
     {
-        private const string StringName = "String";
-        private const string ObjectName = "Object";
-        private const string StringArrayName = "String[]";
-        private const string ObjectArrayName = "Object[]";
-
         public static string ToDiagnosticTypeName(this IValueDefinition valueDefinition)
         {
-            if (valueDefinition.IsObject)
+            switch (valueDefinition.Type)
             {
-                return valueDefinition.IsArray ? ObjectArrayName : ObjectName;
+                case ValueType.String:
+                    return valueDefinition.IsArray ? "String[]" : "String";
+                case ValueType.Bool:
+                    return valueDefinition.IsArray ? "Boolean[]" : "Boolean";
+                case ValueType.Object:
+                    return valueDefinition.IsArray ? "Object[]" : "Object";
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(valueDefinition.Type), valueDefinition.Type, null);
             }
-
-            return valueDefinition.IsArray ? StringArrayName : StringName;
         }
     }
 }

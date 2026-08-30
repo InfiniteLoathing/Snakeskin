@@ -2,7 +2,7 @@
 {
     internal interface IValueDefinition
     {
-        bool IsObject { get; }
+        ValueType Type { get; }
         bool IsArray { get; }
     }
 }

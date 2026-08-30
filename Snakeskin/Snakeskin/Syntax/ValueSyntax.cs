@@ -4,7 +4,7 @@ namespace InfiniteLoathing.Snakeskin.Syntax
 {
     internal class ValueSyntax : IValueDefinition
     {
-        public bool IsObject { get; }
+        public ValueType Type { get; }
         public ValueParentSyntax Parent { get; }
         public string Identifier { get; }
         public bool IsArray { get; }
@@ -12,14 +12,14 @@ namespace InfiniteLoathing.Snakeskin.Syntax
         public TextSpan TextSpan { get; }
 
         public ValueSyntax(
-            bool isObject,
+            ValueType type,
             ValueParentSyntax parent,
             string identifier,
             bool isArray,
             string replacementText,
             TextSpan textSpan)
         {
-            this.IsObject = isObject;
+            this.Type = type;
             this.Parent = parent;
             this.Identifier = identifier;
             this.IsArray = isArray;
