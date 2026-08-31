@@ -23,27 +23,6 @@ namespace InfiniteLoathing.Snakeskin.Syntax
             _diagnosticHandler = diagnosticHandler;
         }
 
-        public bool Accept(TokenKind kind, out Token token)
-        {
-            token = _lexer.Current;
-            if (token.Kind != kind)
-            {
-                return false;
-            }
-            _lexer.Next();
-            return true;
-        }
-
-        public bool Expect(TokenKind kind, out Token token)
-        {
-            if (this.Accept(kind, out token))
-            {
-                return true;
-            }
-            _diagnosticHandler.Handle(new UnexpectedTokenDiagnostic(token.Kind), token.TextSpan);
-            return false;
-        }
-
         public DirectiveSyntaxKind ParseDirectiveKind(out TextSpan textSpan)
         {
             if (!this.Accept(TokenKind.At, out _)
@@ -53,22 +32,28 @@ namespace InfiniteLoathing.Snakeskin.Syntax
                 return DirectiveSyntaxKind.None;
             }
             
-            if (identifier.CharSpan.SequenceEqual(Keywords.Replace))
+            if (identifier.CharSpan.LowerInvariantSequenceEqual(Keywords.Replace))
             {
                 textSpan = identifier.TextSpan;
                 return DirectiveSyntaxKind.Replace;
             }
 
-            if (identifier.CharSpan.SequenceEqual(Keywords.Remove))
+            if (identifier.CharSpan.LowerInvariantSequenceEqual(Keywords.Remove))
             {
                 textSpan = identifier.TextSpan;
                 return DirectiveSyntaxKind.Remove;
             }
 
-            if (identifier.CharSpan.SequenceEqual(Keywords.ForEach))
+            if (identifier.CharSpan.LowerInvariantSequenceEqual(Keywords.ForEach))
             {
                 textSpan = identifier.TextSpan;
                 return DirectiveSyntaxKind.ForEach;
+            }
+
+            if (identifier.CharSpan.LowerInvariantSequenceEqual(Keywords.If))
+            {
+                textSpan = identifier.TextSpan;
+                return DirectiveSyntaxKind.If;
             }
 
             _diagnosticHandler.Handle(new InvalidDirectiveDiagnostic(identifier.CharSpan.ToString()),
@@ -129,7 +114,15 @@ namespace InfiniteLoathing.Snakeskin.Syntax
             this.TryParseValue(out var iterator);
             this.Expect(TokenKind.In, out _);
             this.TryParseValue(out var array);
+            this.Expect(TokenKind.End, out _);
             return new ForEachDirectiveSyntax(iterator, array);
+        }
+
+        public IfDirectiveSyntax ParseIf()
+        {
+            this.TryParseValue(out var condition);
+            this.Expect(TokenKind.End, out _);
+            return new IfDirectiveSyntax(condition);
         }
 
         private bool TryParseValue(out ValueSyntax value)
@@ -203,6 +196,27 @@ namespace InfiniteLoathing.Snakeskin.Syntax
             }
 
             return ValueType.String;
+        }
+
+        private bool Accept(TokenKind kind, out Token token)
+        {
+            token = _lexer.Current;
+            if (token.Kind != kind)
+            {
+                return false;
+            }
+            _lexer.Next();
+            return true;
+        }
+
+        private bool Expect(TokenKind kind, out Token token)
+        {
+            if (this.Accept(kind, out token))
+            {
+                return true;
+            }
+            _diagnosticHandler.Handle(new UnexpectedTokenDiagnostic(token.Kind), token.TextSpan);
+            return false;
         }
 
         private static string Unescape(string value) => EscapeRegex.Replace(value, "$1");

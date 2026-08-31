@@ -4,7 +4,7 @@ namespace InfiniteLoathing.Snakeskin.Extensions
 {
     internal static class SpanExtensions
     {
-        public static bool SequenceEqual(this ReadOnlySpan<char> span, string expected)
+        public static bool LowerInvariantSequenceEqual(this ReadOnlySpan<char> span, string expected)
         {
             if (span.Length != expected.Length)
             {

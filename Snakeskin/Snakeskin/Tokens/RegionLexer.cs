@@ -188,7 +188,7 @@ namespace InfiniteLoathing.Snakeskin.Tokens
 
             var span = _text.Slice(start, length);
 
-            if (span.SequenceEqual(Keywords.In))
+            if (span.LowerInvariantSequenceEqual(Keywords.In))
             {
                 this.Current = this.CreateToken(TokenKind.In, span, start, length);
                 return;

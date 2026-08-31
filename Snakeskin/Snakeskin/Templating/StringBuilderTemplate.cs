@@ -67,7 +67,7 @@ namespace InfiniteLoathing.Snakeskin.Templating
                 foreach (var requiredValue in this.RequiredValues)
                 {
                     indentedWriter.WriteLine(
-                        $"var {requiredValue.GetSourceVar()} = values.{requiredValue.Identifier};");
+                        $"var {requiredValue.GetSourceIdentifier()} = values.{requiredValue.Identifier};");
                 }
                 indentedWriter.WriteLine($"var {SourceConstants.StringBuilder} = new System.Text.StringBuilder();");
                 this.Root.Render(indentedWriter);

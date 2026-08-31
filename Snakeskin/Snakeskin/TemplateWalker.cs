@@ -77,6 +77,12 @@ namespace InfiniteLoathing.Snakeskin
                     var foreachNode = _templateScope.AddForEach(forEachSyntax);
                     this.EnterDirectiveRegion(foreachNode);
                     break;
+                case DirectiveSyntaxKind.If:
+                    _regionIsDirective.Push(true);
+                    var ifSyntax = parser.ParseIf();
+                    var ifNode = _templateScope.AddIf(ifSyntax);
+                    this.EnterDirectiveRegion(ifNode);
+                    break;
                 case DirectiveSyntaxKind.None:
                 case DirectiveSyntaxKind.Invalid:
                     _regionIsDirective.Push(false);

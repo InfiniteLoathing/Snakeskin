@@ -71,7 +71,7 @@ namespace InfiniteLoathing.Snakeskin.Templating
 
         public virtual void Render(IndentedTextWriter writer) =>
             writer.WriteLine(
-                $"{SourceConstants.StringBuilder}.Append({this.GetSourceVar()});");
+                $"{SourceConstants.StringBuilder}.Append({this.GetSourceIdentifier()});");
 
         public void RenderInterface(IndentedTextWriter writer)
         {
@@ -96,7 +96,7 @@ namespace InfiniteLoathing.Snakeskin.Templating
             ? this.Identifier
             : $"{this.ParentIdentifier}.{this.Identifier}";
 
-        public string GetSourceVar() => this.ParentIdentifier is null
+        public string GetSourceIdentifier() => this.ParentIdentifier is null
             ? $"_v{this.Identifier}"
             : $"_v{this.ParentIdentifier}.{this.Identifier}";
 

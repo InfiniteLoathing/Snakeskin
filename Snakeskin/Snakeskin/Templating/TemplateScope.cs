@@ -92,6 +92,27 @@ namespace InfiniteLoathing.Snakeskin.Templating
             return new ForEachNode(iteratorNode, arrayNode);
         }
 
+        public ParentNode AddIf(IfDirectiveSyntax ifDirectiveSyntax)
+        {
+            if (!ifDirectiveSyntax.IsValid)
+            {
+                this.PushScope(DirectiveScope.Empty);
+                return new ParentNode();
+            }
+            
+            if (ifDirectiveSyntax.Condition.Type != ValueType.Bool || ifDirectiveSyntax.Condition.IsArray)
+            {
+                _diagnosticHandler.Handle(
+                    diagnostic: new InvalidArgumentDiagnostic(Keywords.If, ifDirectiveSyntax.Condition),
+                    textSpan: ifDirectiveSyntax.Condition.TextSpan);
+                return new ParentNode();
+            }
+
+            this.Require(ifDirectiveSyntax.Condition, out var conditionNode);
+            this.PushScope(DirectiveScope.Empty);
+            return new IfNode(conditionNode);
+        }
+
         private void PushScope(DirectiveScope directiveScope)
         {
             _directiveScopes.Push(directiveScope);
