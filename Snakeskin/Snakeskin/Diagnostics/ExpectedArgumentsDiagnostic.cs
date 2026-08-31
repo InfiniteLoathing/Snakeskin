@@ -5,13 +5,11 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
 {
     internal class ExpectedArgumentsDiagnostic : ITemplateDiagnostic
     {
-        public readonly string DirectiveType;
-
-        public string SimpleMessage { get; set; }
+        private readonly string _directiveType;
 
         public ExpectedArgumentsDiagnostic(string directiveType)
         {
-            DirectiveType = directiveType;
+            _directiveType = directiveType;
         }
 
         public Diagnostic CreateDiagnostic(Location location, IEnumerable<Location> additionalLocations = null) =>
@@ -19,6 +17,6 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
                 descriptor: DiagnosticDescriptors.ExpectedArguments,
                 location: location,
                 additionalLocations: additionalLocations,
-                messageArgs: DirectiveType);
+                messageArgs: _directiveType);
     }
 }

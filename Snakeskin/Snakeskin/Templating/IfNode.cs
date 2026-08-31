@@ -2,20 +2,18 @@
 
 namespace InfiniteLoathing.Snakeskin.Templating
 {
-    internal class ForEachNode : ParentNode
+    internal class IfNode : ParentNode
     {
-        private readonly ValueNode _iterator;
-        private readonly ValueNode _array;
+        private readonly ValueNode _condition;
         
-        public ForEachNode(ValueNode iterator, ValueNode array)
+        public IfNode(ValueNode condition)
         {
-            _iterator = iterator;
-            _array = array;
+            _condition = condition;
         }
         
         public override void Render(IndentedTextWriter writer)
         {
-            writer.WriteLine($"foreach (var {_iterator.GetSourceIdentifier()} in {_array.GetSourceIdentifier()})");
+            writer.WriteLine($"if ({_condition.GetSourceIdentifier()})");
             writer.WriteLine("{");
             writer.Indent++;
             base.Render(writer);

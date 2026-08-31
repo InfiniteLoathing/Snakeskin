@@ -8,7 +8,7 @@ namespace InfiniteLoathing.Snakeskin.Templating
         private readonly ValueNode _original;
         
         public DerivedObjectValueNode(string identifier, TextSpan textSpan, ValueNode original)
-            : base(identifier, textSpan, false, true)
+            : base(identifier, textSpan, ValueType.Object)
         {
             _original = original;
         }
@@ -26,8 +26,8 @@ namespace InfiniteLoathing.Snakeskin.Templating
                     this.Identifier,
                     originalProperty.Identifier,
                     originalProperty.TextSpan,
-                    originalProperty.IsArray,
-                    originalProperty.IsObject);
+                    originalProperty.Type,
+                    originalProperty.IsArray);
                 this.Properties.Add(identifier, property);
                 return true;
             }
@@ -41,8 +41,8 @@ namespace InfiniteLoathing.Snakeskin.Templating
                 this.Identifier,
                 valueSyntax.Identifier,
                 valueSyntax.TextSpan,
-                valueSyntax.IsArray,
-                valueSyntax.IsObject);
+                valueSyntax.Type,
+                valueSyntax.IsArray);
             
             this.Properties.Add(valueSyntax.Identifier, property);
             _original.AddProperty(valueSyntax);

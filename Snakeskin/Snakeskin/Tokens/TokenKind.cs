@@ -4,6 +4,7 @@
     {
         At,
         Pound,
+        QuestionMark,
         Dot,
         Colon,
         Comma,

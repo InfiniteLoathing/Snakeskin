@@ -5,11 +5,11 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
 {
     internal class InvalidDirectiveDiagnostic : ITemplateDiagnostic
     {
-        public readonly string Name;
+        private readonly string _name;
 
         public InvalidDirectiveDiagnostic(string name)
         {
-            Name = name;
+            _name = name;
         }
 
         public Diagnostic CreateDiagnostic(Location location, IEnumerable<Location> additionalLocations = null) =>
@@ -17,6 +17,6 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
             descriptor: DiagnosticDescriptors.InvalidDirective,
             location: location,
             additionalLocations: additionalLocations,
-            messageArgs: Name);
+            messageArgs: _name);
     }
 }

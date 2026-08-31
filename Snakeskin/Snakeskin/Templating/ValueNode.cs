@@ -1,4 +1,5 @@
-﻿using System.CodeDom.Compiler;
+﻿using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using InfiniteLoathing.Snakeskin.Syntax;
 using Microsoft.CodeAnalysis.Text;
@@ -15,41 +16,41 @@ namespace InfiniteLoathing.Snakeskin.Templating
 
         public bool IsArray { get; }
 
-        public bool IsObject { get; }
+        public ValueType Type { get; }
 
         protected Dictionary<string, ValueNode> Properties { get; }
 
         public ValueNode(
             string identifier,
             TextSpan textSpan,
-            bool isArray = false,
-            bool isObject = false)
+            ValueType type = ValueType.String,
+            bool isArray = false)
         {
             this.ParentIdentifier = null;
             this.Identifier = identifier;
             this.TextSpan = textSpan;
+            this.Type = type;
             this.IsArray = isArray;
-            this.IsObject = isObject;
-            this.Properties = isObject ? new Dictionary<string, ValueNode>() : null;
+            this.Properties = type == ValueType.Object ? new Dictionary<string, ValueNode>() : null;
         }
 
         public ValueNode(
             string parentIdentifier,
             string identifier,
             TextSpan textSpan,
-            bool isArray = false,
-            bool isObject = false)
+            ValueType type = ValueType.String,
+            bool isArray = false)
         {
             this.ParentIdentifier = parentIdentifier;
             this.Identifier = identifier;
             this.TextSpan = textSpan;
+            this.Type = type;
             this.IsArray = isArray;
-            this.IsObject = isObject;
-            this.Properties = isObject ? new Dictionary<string, ValueNode>() : null;
+            this.Properties = type == ValueType.Object ? new Dictionary<string, ValueNode>() : null;
         }
 
         public bool TypeMatches(ValueSyntax valueSyntax) =>
-            this.IsArray == valueSyntax.IsArray && this.IsObject == valueSyntax.IsObject;
+            this.IsArray == valueSyntax.IsArray && this.Type == valueSyntax.Type;
 
         public virtual bool TryGetProperty(string identifier, out ValueNode property) =>
             this.Properties.TryGetValue(identifier, out property);
@@ -60,8 +61,8 @@ namespace InfiniteLoathing.Snakeskin.Templating
                 this.Identifier,
                 valueSyntax.Identifier,
                 valueSyntax.TextSpan,
-                valueSyntax.IsArray,
-                valueSyntax.IsObject);
+                valueSyntax.Type,
+                valueSyntax.IsArray);
             
             this.Properties.Add(valueSyntax.Identifier, property);
 
@@ -70,7 +71,7 @@ namespace InfiniteLoathing.Snakeskin.Templating
 
         public virtual void Render(IndentedTextWriter writer) =>
             writer.WriteLine(
-                $"{SourceConstants.StringBuilder}.Append({this.GetSourceVar()});");
+                $"{SourceConstants.StringBuilder}.Append({this.GetSourceIdentifier()});");
 
         public void RenderInterface(IndentedTextWriter writer)
         {
@@ -95,7 +96,7 @@ namespace InfiniteLoathing.Snakeskin.Templating
             ? this.Identifier
             : $"{this.ParentIdentifier}.{this.Identifier}";
 
-        public string GetSourceVar() => this.ParentIdentifier is null
+        public string GetSourceIdentifier() => this.ParentIdentifier is null
             ? $"_v{this.Identifier}"
             : $"_v{this.ParentIdentifier}.{this.Identifier}";
 
@@ -103,12 +104,20 @@ namespace InfiniteLoathing.Snakeskin.Templating
 
         private string GetSourceType()
         {
-            if (this.IsObject)
+            if (this.Type == ValueType.Object)
             {
                 return this.IsArray ? $"{this.GetSourceInterface()}[]" : this.GetSourceInterface();
             }
 
-            return this.IsArray ? "string[]" : "string";
+            switch (this.Type)
+            {
+                case ValueType.String:
+                    return this.IsArray ? "string[]" : "string";
+                case ValueType.Bool:
+                    return this.IsArray ? "bool[]" : "bool";
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
     }
 }

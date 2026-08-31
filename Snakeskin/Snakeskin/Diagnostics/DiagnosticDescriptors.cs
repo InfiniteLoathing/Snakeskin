@@ -48,7 +48,7 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
         public static readonly DiagnosticDescriptor InvalidArgument = new DiagnosticDescriptor(
             id: "SNKS004",
             title: "Invalid argument",
-            messageFormat: "{0} directive does not accept arguments of type {1}",
+            messageFormat: "{0} directive does not accept arguments of type \"{1}\"",
             category: Category,
             defaultSeverity: ErrorSeverity,
             isEnabledByDefault: true);
@@ -56,7 +56,7 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
         public static readonly DiagnosticDescriptor ValueTypeMismatch = new DiagnosticDescriptor(
             id: "SNKS005",
             title: "Value type mismatch",
-            messageFormat: "Value \"{0}\" cannot be declared as {1} because it has already been declared with type {2}",
+            messageFormat: "Value \"{0}\" cannot be declared as \"{1}\" because it has already been declared with type \"{2}\"",
             category: Category,
             defaultSeverity: ErrorSeverity,
             isEnabledByDefault: true);
@@ -65,7 +65,7 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
             id: "SNKS006",
             title: "Value parent type mismatch",
             messageFormat:
-            "Value \"{0}\" cannot be accessed as an object because it has already been declared with type {1}",
+            "Value \"{0}\" cannot be accessed as an object because it has already been declared with type \"{1}\"",
             category: Category,
             defaultSeverity: ErrorSeverity,
             isEnabledByDefault: true);
@@ -74,7 +74,16 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
             id: "SNKS007",
             title: "Value property type mismatch",
             messageFormat:
-            "Value property \"{0}.{1}\" cannot be declared as {2} because it has already been declared with type {3}",
+            "Value property \"{0}.{1}\" cannot be declared as \"{2}\" because it has already been declared with type \"{3}\"",
+            category: Category,
+            defaultSeverity: ErrorSeverity,
+            isEnabledByDefault: true);
+
+        public static readonly DiagnosticDescriptor NestedObjectProperty = new DiagnosticDescriptor(
+            id: "SNKS008",
+            title: "Nested object property",
+            messageFormat:
+            "Properties may not be of type \"Object\"",
             category: Category,
             defaultSeverity: ErrorSeverity,
             isEnabledByDefault: true);
@@ -87,6 +96,7 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
             InvalidArgument,
             ValueTypeMismatch,
             ValueParentTypeCollision,
-            ValuePropertyTypeCollision);
+            ValuePropertyTypeCollision,
+            NestedObjectProperty);
     }
 }

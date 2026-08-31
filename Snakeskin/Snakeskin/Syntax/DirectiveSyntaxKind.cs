@@ -6,6 +6,7 @@
         Replace,
         Remove,
         ForEach,
+        If,
         Invalid
     }
 }

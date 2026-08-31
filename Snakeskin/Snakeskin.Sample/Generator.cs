@@ -20,26 +20,34 @@ namespace InfiniteLoathing.Snakeskin.Sample
                     Namespace = "Concrete.Namespace",
                     ClassName = "ConcreteClass",
                     Strings = new[]{"test1", "test2", "test3"},
+                    TestBool = true,
                     Properties = new []
                     {
                         new Property
                         {
                             Type = "string",
-                            Name = "Text"
+                            Name = "Text",
+                            TestBoolProp = true
                         },
                         new Property
                         {
                             Type = "int",
-                            Name = "Position"
+                            Name = "Position",
+                            TestBoolProp = false
                         },
                         new Property
                         {
                             Type = "object",
-                            Name = "Value"
+                            Name = "Value",
+                            TestBoolProp = true
                         }
                     }
                 };
+                var v1 = TestTemplate.Render(vals);
+                var v2 = BlankTemplate.Render();
+                
                 c.AddSource("TestTemplateFilled.cs", TestTemplate.Render(vals));
+                c.AddSource("BlankTemplate.cs", BlankTemplate.Render());
             });
         }
     }

@@ -34,7 +34,7 @@ namespace InfiniteLoathing.Snakeskin.Templating
                 indentedWriter.Indent++;
                 if (this.RequiredValues.Any())
                 {
-                    foreach (var requiredValue in this.RequiredValues.Where(x => x.IsObject))
+                    foreach (var requiredValue in this.RequiredValues.Where(x => x.Type == ValueType.Object))
                     {
                         requiredValue.RenderInterface(indentedWriter);
                     }

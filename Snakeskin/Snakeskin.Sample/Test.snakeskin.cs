@@ -24,10 +24,17 @@ namespace Namespace
         #region @foreach #Property in #Properties[]
 
         #region @replace #Property.Type:"Placeholder", #Property.Name
+        #region @if #Property.?TestBoolProp
+        // This one had TestBoolProp true
+        #endregion
         public Placeholder Name { get; set; }
         #endregion
         #endregion
     }
+    #endregion
+    
+    #region @if ?TestBool
+    // Optional comment
     #endregion
 }
 #endregion

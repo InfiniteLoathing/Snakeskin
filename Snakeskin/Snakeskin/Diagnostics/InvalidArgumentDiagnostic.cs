@@ -1,36 +1,30 @@
 ﻿using System.Collections.Generic;
+using InfiniteLoathing.Snakeskin.Extensions;
 using Microsoft.CodeAnalysis;
 
 namespace InfiniteLoathing.Snakeskin.Diagnostics
 {
     internal class InvalidArgumentDiagnostic : ITemplateDiagnostic
     {
-        public readonly string DirectiveName;
+        private readonly string _directiveName;
 
-        public readonly bool IsObject;
-
-        public readonly bool IsArray;
+        private readonly IValueDefinition _valueDefinition;
         
-        public InvalidArgumentDiagnostic(string directiveName, bool isObject, bool isArray)
+        public InvalidArgumentDiagnostic(string directiveName, IValueDefinition valueDefinition)
         {
-            DirectiveName = directiveName;
-            IsObject = isObject;
-            IsArray = isArray;
+            _directiveName = directiveName;
+            _valueDefinition = valueDefinition;
         }
 
         public Diagnostic CreateDiagnostic(Location location, IEnumerable<Location> additionalLocations = null)
         {
-            var type = IsObject ? "Object" : "String";
-            if (IsArray)
-            {
-                type += "[]";
-            }
 
             return Diagnostic.Create(
                 descriptor: DiagnosticDescriptors.InvalidArgument,
                 location: location,
                 additionalLocations: additionalLocations,
-                DirectiveName, type);
+                _directiveName,
+                _valueDefinition.ToDiagnosticTypeName());
         }
     }
 }

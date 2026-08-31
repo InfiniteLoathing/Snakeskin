@@ -10,6 +10,7 @@ namespace InfiniteLoathing.Snakeskin.Tokens
         {
             At,
             Pound,
+            QuestionMark,
             OpenBracket,
             Dot,
             Colon,
@@ -64,6 +65,8 @@ namespace InfiniteLoathing.Snakeskin.Tokens
                     return CharacterKind.At;
                 case '#':
                     return CharacterKind.Pound;
+                case '?':
+                    return CharacterKind.QuestionMark;
                 case '[':
                     return CharacterKind.OpenBracket;
                 case '.':
@@ -94,6 +97,10 @@ namespace InfiniteLoathing.Snakeskin.Tokens
                     break;
                 case CharacterKind.Pound:
                     this.Current = this.CreateToken(TokenKind.Pound, this.Position, CharLength);
+                    this.Position += CharLength;
+                    break;
+                case CharacterKind.QuestionMark:
+                    this.Current = this.CreateToken(TokenKind.QuestionMark, this.Position, CharLength);
                     this.Position += CharLength;
                     break;
                 case CharacterKind.Dot:
@@ -165,7 +172,6 @@ namespace InfiniteLoathing.Snakeskin.Tokens
                         this.Current = this.CreateToken(TokenKind.QuotedString, start, this.Position - start);
                         return;
                     default:
-                        escaped = false;
                         this.Position++;
                         continue;
                 }
@@ -182,7 +188,7 @@ namespace InfiniteLoathing.Snakeskin.Tokens
 
             var span = _text.Slice(start, length);
 
-            if (span.SequenceEqual(Keywords.In))
+            if (span.LowerInvariantSequenceEqual(Keywords.In))
             {
                 this.Current = this.CreateToken(TokenKind.In, span, start, length);
                 return;

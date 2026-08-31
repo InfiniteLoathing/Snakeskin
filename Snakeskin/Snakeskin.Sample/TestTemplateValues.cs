@@ -12,6 +12,8 @@ namespace InfiniteLoathing.Snakeskin.Sample
         public string[] Strings { get; set; }
         
         public TestTemplate.IProperties[] Properties { get; set; }
+
+        public bool TestBool { get; set; }
     }
 }
 #endif

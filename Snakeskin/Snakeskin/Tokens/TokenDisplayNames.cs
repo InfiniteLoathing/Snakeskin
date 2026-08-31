@@ -12,6 +12,8 @@ namespace InfiniteLoathing.Snakeskin.Tokens
                     return "@";
                 case TokenKind.Pound:
                     return "#";
+                case TokenKind.QuestionMark:
+                    return "?";
                 case TokenKind.Dot:
                     return ".";
                 case TokenKind.Colon:
@@ -33,7 +35,7 @@ namespace InfiniteLoathing.Snakeskin.Tokens
                 case TokenKind.Invalid:
                     return "Unknown";
                 case TokenKind.End:
-                    return "End of File";
+                    return "End of Line";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(tokenKind), tokenKind, null);
             }

@@ -6,11 +6,11 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
 {
     internal class UnexpectedTokenDiagnostic : ITemplateDiagnostic
     {
-        public TokenKind Kind;
+        private readonly TokenKind _kind;
 
         public UnexpectedTokenDiagnostic(TokenKind kind)
         {
-            Kind = kind;
+            _kind = kind;
         }
 
         public Diagnostic CreateDiagnostic(Location location, IEnumerable<Location> additionalLocations = null) =>
@@ -18,6 +18,6 @@ namespace InfiniteLoathing.Snakeskin.Diagnostics
                 descriptor: DiagnosticDescriptors.UnexpectedToken,
                 location: location,
                 additionalLocations: additionalLocations,
-                messageArgs: TokenDisplayNames.Get(Kind));
+                messageArgs: TokenDisplayNames.Get(_kind));
     }
 }
