@@ -8,7 +8,7 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageId>InfiniteLoathing.Snakeskin</PackageId>
         <RootNamespace>InfiniteLoathing.Snakeskin</RootNamespace>
-        <Version>0.0.0.1</Version>
+        <Version>0.0.0.2</Version>
         <Authors>Scott Sanderson</Authors>
         <IncludeBuildOutput>false</IncludeBuildOutput>
         <NoWarn>$(NoWarn);NU5128</NoWarn>
