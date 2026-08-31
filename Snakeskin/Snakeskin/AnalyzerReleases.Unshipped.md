@@ -13,4 +13,4 @@
 | SNKS005 | Templating | Error    | SNKS005_ValueTypeMismatch          |
 | SNKS006 | Templating | Error    | SNKS006_ValueParentTypeCollision   |
 | SNKS007 | Templating | Error    | SNKS007_ValuePropertyTypeCollision |
-| SNKS008 | Templating | Error    | SNKS007_ValuePropertyTypeCollision |
+| SNKS008 | Templating | Error    | SNKS008_NestedObjectProperty       |
