@@ -81,7 +81,7 @@ namespace InfiniteLoathing.Snakeskin.Templating
 
             foreach (var property in this.Properties.Values)
             {
-                property.RenderProperty(writer);
+                property.RenderInterfaceProperty(writer);
             }
 
             writer.Indent--;
@@ -89,8 +89,8 @@ namespace InfiniteLoathing.Snakeskin.Templating
             writer.WriteLine("}");
         }
 
-        public void RenderProperty(IndentedTextWriter writer) =>
-            writer.WriteLine($"{this.GetSourceType()} {this.Identifier} {{ get; set; }}");
+        public void RenderInterfaceProperty(IndentedTextWriter writer) =>
+            writer.WriteLine($"{this.GetSourceType()} {this.Identifier} {{ get; }}");
 
         public string GetDiagnosticIdentifier() => this.ParentIdentifier is null
             ? this.Identifier

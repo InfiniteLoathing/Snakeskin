@@ -44,7 +44,7 @@ namespace InfiniteLoathing.Snakeskin.Templating
                     indentedWriter.Indent++;
                     foreach (var requiredValue in this.RequiredValues)
                     {
-                        requiredValue.RenderProperty(indentedWriter);
+                        requiredValue.RenderInterfaceProperty(indentedWriter);
                     }
                     indentedWriter.Indent--;
                     indentedWriter.WriteLine("}");

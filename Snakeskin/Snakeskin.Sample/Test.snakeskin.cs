@@ -1,5 +1,4 @@
 ﻿#region @replace #TestObj.StringLiteral:"replaced string literal", Namespace
-
 namespace Namespace
 {
     #region @remove

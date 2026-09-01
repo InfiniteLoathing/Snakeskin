@@ -43,11 +43,11 @@ namespace InfiniteLoathing.Snakeskin.Sample
                         }
                     }
                 };
-                var v1 = TestTemplate.Render(vals);
-                var v2 = BlankTemplate.Render();
+                var testTemplate = TestTemplate.Render(vals);
+                var blankTemplate = BlankTemplate.Render();
                 
-                c.AddSource("TestTemplateFilled.cs", TestTemplate.Render(vals));
-                c.AddSource("BlankTemplate.cs", BlankTemplate.Render());
+                c.AddSource("TestTemplateFilled.cs", testTemplate);
+                c.AddSource("BlankTemplate.cs", blankTemplate);
             });
         }
     }

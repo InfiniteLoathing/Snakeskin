@@ -84,9 +84,9 @@ namespace InfiniteLoathing.Snakeskin.Templating
             var values = new Dictionary<string, ValueNode> { { iterator.Identifier, iteratorNode } }
                 .ToImmutableDictionary();
             var replacements = iterator.Type == ValueType.String
-                ? ImmutableDictionary<string, ValueNode>.Empty
-                : new Dictionary<string, ValueNode> { { iterator.ReplacementText, iteratorNode } }
-                    .ToImmutableDictionary();
+                ? new Dictionary<string, ValueNode> { { iterator.ReplacementText, iteratorNode } }
+                    .ToImmutableDictionary()
+                : ImmutableDictionary<string, ValueNode>.Empty;
 
             this.PushScope(new DirectiveScope(values, replacements));
             return new ForEachNode(iteratorNode, arrayNode);
