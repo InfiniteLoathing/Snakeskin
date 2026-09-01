@@ -25,7 +25,7 @@ namespace InfiniteLoathing.Snakeskin.Templating
         public ParentNode AddRemove(RemoveDirectiveSyntax removeDirectiveSyntax)
         {
             this.PushScope(DirectiveScope.Empty);
-            return new ParentNode();
+            return new RemoveNode();
         }
 
         public ParentNode AddReplace(ReplaceDirectiveSyntax replaceDirectiveSyntax)

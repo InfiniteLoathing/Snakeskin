@@ -2,6 +2,11 @@
 
 namespace Namespace
 {
+    #region @remove
+    public class Placeholder
+    {
+    }
+    #endregion
     #region @replace ClassName
     internal class ClassName
     {
